@@ -73,7 +73,7 @@ export class CourseAdminController {
 
   @ApiOkResponsePaginated(CourseDto)
   @Get()
-  async find(@Query(CourseQueryTransformPipe) query: CourseQueryDto) {
+  async find(@Query(CourseQueryTransformPipe) query: CourseQueryDto) {    
     return await this.courseService.find(query);
   }
 
@@ -133,14 +133,14 @@ export class CourseAdminController {
     await this.lessonService.updateSort(values);
   }
 
-  @SerializeOptions({
+  @SerializeOptions({//determines how the response objec should be serialised
     groups: ['detail'],
   })
-  @UseGuards(CourseOwnerGuard)
+  // @UseGuards(CourseOwnerGuard)
   @Get(':id')
   async getCourse(
     @Param('id', ParseIntPipe) id: number,
-    @Res({ passthrough: true }) resp: Response,
+    @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
   ) {
     const result = await this.courseService.findById(id);
     if (!result) {

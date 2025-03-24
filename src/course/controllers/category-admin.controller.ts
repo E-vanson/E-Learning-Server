@@ -26,7 +26,7 @@ import { Response } from 'express';
 
 @ApiTags('Course')
 @Controller('/admin/categories')
-// @Roles(UserRole.OWNER, UserRole.ADMIN, UserRole.USER) 
+@Roles(UserRole.OWNER, UserRole.ADMIN) 
 export class CategoryAdminController {
   constructor(
     @Inject(CATEGORY_SERVICE) private categoryService: CategorySerive,

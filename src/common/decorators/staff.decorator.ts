@@ -8,7 +8,6 @@ export const Staff = () =>
       UserRole.OWNER,
       UserRole.ADMIN,
       UserRole.AUTHOR,
-      UserRole.CONTRIBUTOR,
-      UserRole.USER
+      UserRole.CONTRIBUTOR      
     ),
   );

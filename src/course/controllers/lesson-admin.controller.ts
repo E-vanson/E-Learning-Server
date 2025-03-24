@@ -23,7 +23,7 @@ import { LessonUpdateTransformPipe } from '../pipes/lesson-update-transform.pipe
 
 @ApiTags('Course')
 @Controller('/admin/courses/:courseId/lessons')
-@UseGuards(CourseOwnerGuard)
+@UseGuards(CourseOwnerGuard) 
 @Staff()
 export class LessonAdminController {
   constructor(@Inject(LESSON_SERVICE) private lessonService: LessonService) {}

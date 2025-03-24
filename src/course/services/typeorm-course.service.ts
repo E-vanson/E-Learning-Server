@@ -254,6 +254,7 @@ export class TypeormCourseService implements CourseService {
   }
 
   async find(query: CourseQueryDto): Promise<PageDto<CourseDto>> {
+    console.log("inside the course service:", query);
     const { limit, offset } = QueryDto.getPageable(query);
 
     const baseQuery = this.courseRepo.createQueryBuilder('course');
@@ -290,11 +291,11 @@ export class TypeormCourseService implements CourseService {
       });
     }
 
-    if (query.author) {
-      baseQuery.andWhere('course_author.authorId = :authorId', {
-        authorId: query.author,
-      });
-    }
+    // if (query.author) {
+    //   baseQuery.andWhere('course_author.authorId = :authorId', {
+    //     authorId: query.author,
+    //   });
+    // }
 
     if (query.q) {
       baseQuery.andWhere('LOWER(course.title) LIKE LOWER(:title)', {
@@ -339,6 +340,7 @@ export class TypeormCourseService implements CourseService {
 
       list = await dataQuery.getMany();
     }
+    console.log("The list of courses: ", list);
 
     // const [list, count] = await baseQuery
     //   .offset(offset)

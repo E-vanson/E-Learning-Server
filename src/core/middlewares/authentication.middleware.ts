@@ -25,7 +25,7 @@ export class AuthenticationMiddleware
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      const token = this.extractTokenFromCookie(req);
+      const token = this.extractTokenFromCookie(req) || this.extractTokenFromHeader(req);
 
       if (!token) {
         throw new Error('Access token not found');

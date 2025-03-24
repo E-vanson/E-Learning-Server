@@ -159,6 +159,7 @@ export class TypeormUserService implements UserService, OnApplicationBootstrap {
   }
 
   async find(query: UserQueryDto): Promise<PageDto<UserDto>> {
+    console.log("finding the user:")
     const { limit, offset } = QueryDto.getPageable(query);
 
     const userQuery = this.userRepo.createQueryBuilder('user');

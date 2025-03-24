@@ -14,7 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Setting')
-@Controller('storage')
+@Controller('storage') 
 export class StorageController {
   constructor(
     @Inject(FILE_STORAGE_SERVICE)

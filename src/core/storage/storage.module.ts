@@ -21,7 +21,9 @@ import { LocalFileStorageService } from './local-file-storage.service';
               const month = date.getMonth() + 1;
               const fm = month < 10 ? `0${month}` : month;
               const basePath = configService.get<string>('IMAGE_PATH');
+              console.log("The base path....", basePath);
               const path = `${basePath}/${date.getFullYear()}/${fm}`;
+              console.log("The path....", path);
               mkdirSync(path, { recursive: true });
               cb(null, path);
             },

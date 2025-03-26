@@ -13,11 +13,15 @@ export class CategoryEntity extends AuditingEntity {
   @Column({ unique: true })
   slug: string;
 
+  @Column({ type: 'varchar', length: 2000, nullable: true })
+  cover?: string | null;
+
   toDto() {
     return new CategoryDto({
       id: this.id,
       name: this.name,
       slug: this.slug,
+      cover: this.cover ?? undefined,
       audit: this.toAudit(),
     });
   }

@@ -36,6 +36,7 @@ export class StorageController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    console.log("Inside the image uploader controller")
     const sizeInMB = file.size / Math.pow(1024, 2);
     if (sizeInMB <= 0) {
       throw new BadRequestException('File must not empty');

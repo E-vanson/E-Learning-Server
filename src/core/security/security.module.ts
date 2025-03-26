@@ -43,11 +43,11 @@ export class SecurityModule implements NestModule {
           credentials: true,
         }),
       )
-      .forRoutes('*')
+      .forRoutes('*path')
       .apply(AuthenticationMiddleware)
-      .exclude({ path: '/content/:path*', method: RequestMethod.GET })
+      .exclude({ path: '/content/*path', method: RequestMethod.GET })
       .exclude({ path: '/auth/verify-email', method: RequestMethod.POST })
       // .exclude({path: '/admin/users', method: RequestMethod.GET})
-      .forRoutes('*');
+      .forRoutes({path: '*path', method: RequestMethod.ALL });
   }
 }

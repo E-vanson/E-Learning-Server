@@ -6,6 +6,7 @@ export class CategoryDto {
   id: number;
   name: string;
   slug: string;
+  cover?: string;
   courseCount?: string;
   audit?: AuditingDto;
 

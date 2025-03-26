@@ -1,4 +1,3 @@
-import { Public } from '@/common/decorators';
 import { FirebaseService } from '@/core/security/firebase.service';
 import { USER_SERVICE, UserService } from '@/core/services';
 import {
@@ -20,7 +19,6 @@ export class AuthController {
   ) {}
 
   @Post('verify-email')
-  // @Public()
   async verifyEmail(@Query('oobCode') oobCode: string) {
     console.log("Inside verify email", oobCode)
     const { uid, emailVerified } =

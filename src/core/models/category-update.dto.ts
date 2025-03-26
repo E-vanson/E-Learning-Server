@@ -9,4 +9,5 @@ export class CategoryUpdateDto {
 
   @IsNotEmpty()
   slug: string;
+  cover?: string;
 }

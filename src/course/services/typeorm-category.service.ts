@@ -66,6 +66,7 @@ export class TypeormCategoryService implements CategorySerive {
           return this.categoryRepo.existsBy({ id: Not(values.id), slug: v });
         },
       }),
+      cover: values.cover ?? null
     });
 
     this.eventEmitter.emit(

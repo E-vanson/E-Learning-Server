@@ -14,13 +14,19 @@ export class LocalFileStorageService implements FileStorageService {
     if (file.size <= 0) {
       return undefined;
     }
-
+    const date = new Date();
+    const month = date.getMonth() + 1;    
+    const fm = month < 10 ? `0${month}` : month;  
+ 
     const fileName = await this.createUniqueFile(file);
     const baseUrl = this.configService.get<string>('IMAGE_URL');
-    const dir = file.destination.split('images')[1];
+    const dir = file.destination.split('images')[1] ?? "uploads";
+    console.log("The dir: ", dir)
+    console.log("The fileName: ", fileName)
+    console.log("The baseurl: ", baseUrl)
     return {
       fileName: fileName,
-      url: `${baseUrl}${dir}/${fileName}`,
+      url: `${baseUrl}/${dir}/${date.getFullYear()}/${fm}/${fileName}`,
     };
   }
 

@@ -7,6 +7,8 @@ export enum UserRole {
   AUTHOR = 'author',
   ADMIN = 'admin',
   OWNER = 'owner',
+  FREELANCER = 'freelancer',
+  EMPLOYER = 'employer'
 }
 
 export class UserDto {

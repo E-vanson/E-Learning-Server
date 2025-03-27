@@ -21,7 +21,7 @@ export enum ExperienceLevel {
 
 export class JobListingDto{
   @Expose()
-  job_id: string;
+  id: string;
 
   @Expose()
   @Type(() => UserDto)
@@ -49,6 +49,10 @@ export class JobListingDto{
 
   @Expose()
   experienceLevel: ExperienceLevel | null;
+    
+  publishedAt?: string;
+    
+  publishedBy?: string;
 
   @Expose()
   status: JobStatus;

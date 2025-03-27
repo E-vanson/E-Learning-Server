@@ -14,7 +14,7 @@ import { BudgetType, ExperienceLevel } from './job-listing.dto';
 
 export class JobListingUpdateDto{
     @IsString()
-    job_id: string;
+    id: string;
     
     @MaxLength(2000)
     title: string;

@@ -16,7 +16,7 @@ import { BudgetType, ExperienceLevel, JobListingDto, JobStatus } from '../models
 @Entity('job_listing')
 export class JobListingEntity extends AuditingEntity {
   @PrimaryColumn()
-  job_id: string;
+  id: string;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'id' })
@@ -28,19 +28,18 @@ export class JobListingEntity extends AuditingEntity {
   @Column({ length: 2000, unique: true })
   slug: string;  
 
-  @Column({ type: 'text' })
-  description: string;
+  @Column({ type: 'text', nullable: true  })
+  description?: string;
 
   @Column({ type: 'varchar', array: true })
   skillsRequired: string[];
 
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  budget: number | null;
+  budget?: number | null;
 
   @Column({ 
     type: 'enum',
-    enum: BudgetType,
-    nullable: true,
+    enum: BudgetType,    
     default: BudgetType.FIXED
   })
   budgetType: BudgetType | null;
@@ -48,7 +47,11 @@ export class JobListingEntity extends AuditingEntity {
   @Column({ type: 'timestamp' })
   deadline: Date;
 
-  @Column({ type: 'varchar', enum: ExperienceLevel, nullable: true })
+  @Column({
+    type: 'enum',
+    enum: ExperienceLevel,
+    default: ExperienceLevel.INTERMEDIATE        
+  })
   experienceLevel: ExperienceLevel;  
 
   @Column({
@@ -58,9 +61,35 @@ export class JobListingEntity extends AuditingEntity {
   })
   status: JobStatus;
     
-    toDto() {
+  @CreateDateColumn({
+      name: 'published_at',
+      type: 'timestamptz',
+      nullable: true,
+   })
+  publishedAt?: Date | null;
+  
+  @Column({ name: 'published_by', type: 'varchar', nullable: true })
+  publishedBy?: string | null;  
+    
+    toDto(compact?: boolean) {
+        if (compact) {
+            return new JobListingDto({
+                id: this.id,
+                employer: this.employer.toDto(),
+                title: this.title,
+                slug: this.slug,
+                description: this.description,
+                skillsRequired: this.skillsRequired,
+                budget: this.budget,
+                budgetType: this.budgetType,
+                deadline: this.deadline,
+                experienceLevel: this.experienceLevel,
+                status: this.status,
+                audit: this.toAudit(),
+            });
+        }
         return new JobListingDto({
-            job_id: this.job_id,
+            id: this.id,
             employer: this.employer.toDto(),
             title: this.title,
             slug: this.slug,
@@ -72,6 +101,9 @@ export class JobListingEntity extends AuditingEntity {
             experienceLevel: this.experienceLevel,
             status: this.status,
             audit: this.toAudit(),
+            publishedAt: this.publishedAt?.toISOString(),
+            publishedBy: this.publishedBy
         })
+        
     }
 }

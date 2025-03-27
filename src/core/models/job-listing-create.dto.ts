@@ -34,6 +34,6 @@ export class JobListingCreateDto{
 
     experienceLevel: ExperienceLevel;
 
-    status: JobStatus;
+    status: JobStatus;    
 
 }

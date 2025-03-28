@@ -24,7 +24,7 @@ export class CourseQueryDto extends QueryDto {
 
   orderBy?: 'enrollment' | 'publishedAt';
 
-  constructor(partial: Partial<CourseQueryDto> = {}) {//initiliases an instance of the CourseQueryDTo
+  constructor(partial: Partial<CourseQueryDto> = {}) {
     super();//call constructor of parent class
     Object.assign(this, partial);//copy properties from partial to this
   }

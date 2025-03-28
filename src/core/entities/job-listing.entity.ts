@@ -69,7 +69,7 @@ export class JobListingEntity extends AuditingEntity {
   publishedAt?: Date | null;
   
   @Column({ name: 'published_by', type: 'varchar', nullable: true })
-  publishedBy?: string | null;  
+  publishedBy?: string                          ;  
     
     toDto(compact?: boolean) {
         if (compact) {

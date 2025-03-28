@@ -4,7 +4,7 @@ import { JobStatus, BudgetType, ExperienceLevel } from './job-listing.dto';
 import { AuditingDto } from './auditing.dto';
 
 @Exclude()
-export class JobResponseDto {
+export class JobListingPayloadDto {
   @Expose()
   id: number;
 

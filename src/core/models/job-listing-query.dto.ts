@@ -31,9 +31,9 @@ export class JobListingQueryDto extends QueryDto {
     
   orderBy?: 'publishedAt';
   
-    constructor(partial: Partial<JobListingQueryDto> = {}) {
-        super();
-        Object.assign(this, partial)
+  constructor(partial: Partial<JobListingQueryDto> = {}) {
+      super();
+      Object.assign(this, partial);
   }
 
 }

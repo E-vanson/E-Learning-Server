@@ -21,6 +21,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule, ServeStaticModuleOptions } from '@nestjs/serve-static';
 import { ConfigService } from '@nestjs/config';   
 import { join } from 'path';
+import { EmployerModule } from './employer/employer.module';
 
 
 function logger(req: Request, res: Response, next: NextFunction) {
@@ -60,7 +61,8 @@ function logger(req: Request, res: Response, next: NextFunction) {
     AuthModule,
     ConfigModule.forRoot({
       isGlobal: true
-    })
+    }),
+    EmployerModule
   ],
   providers: [
     {

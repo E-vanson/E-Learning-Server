@@ -5,16 +5,15 @@ import { AuditingDto } from './auditing.dto';
 
 export class EmployerProfileDto{
     @Transform(({ value }) => Number(value))
-    id: number;
-    user: UserDto;
+    id: string;
+    userId: string;
     
     @Expose()
     companyName: string;
     companyDescription: string;
     website?: string;
 
-    audit?: AuditingDto;
-    publishedAt?: string;
+    audit?: AuditingDto;   
 
     constructor(partial: Partial<EmployerProfileDto> = {}) {
     Object.assign(this, partial);

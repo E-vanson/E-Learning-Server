@@ -14,51 +14,32 @@ import { EmployerProfileDto } from '../models/employer-profie.dto';
 
 @Entity('employer_profile')
 export class EmployerProfileEntity extends AuditingEntity {
-  @PrimaryColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @OneToOne(() => UserEntity)
-  @JoinColumn({ name: 'id' })
-  user: UserEntity;
+  // @OneToOne(() => UserEntity)
+  // @JoinColumn({ name: 'id' })
+  // user: UserEntity;
+  @Column({ name: 'user_id' })
+  userId: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'company_name', type: 'varchar', length: 255 })
   companyName: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'company_description', type: 'text' })
   companyDescription: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255 })
   website: string;
-    
-  @CreateDateColumn({
-    name: 'published_at',
-    type: 'timestamptz',
-    nullable: true,
-   })
-  publishedAt?: Date | null;
-  
-  @Column({ name: 'published_by', type: 'varchar', nullable: true })
-  publishedBy?: string 
-    
-    toDto(compact?: boolean) {
-        if (compact) {
-            return new EmployerProfileDto({
-                id: this.id,
-                user: this.user?.toDto(),
-                companyName: this.companyName,
-                companyDescription: this.companyDescription,
-                website: this.website,
-                audit: this.toAudit()
-          })
-        }
-        return new EmployerProfileDto({
-            id: this.id,
-            user: this.user?.toDto(),
-            companyName: this.companyName,
-            companyDescription: this.companyDescription,
-            website: this.website,
-            audit: this.toAudit(),
-            publishedAt: this.publishedAt?.toISOString(),
-        });
+
+  toDto() {
+    return new EmployerProfileDto({
+      id: this.id,
+      userId: this.userId,
+      companyName: this.companyName,
+      companyDescription: this.companyDescription,
+      website: this.website,
+      audit: this.toAudit(),
+    });
   }
 }

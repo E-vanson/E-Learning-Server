@@ -1,5 +1,5 @@
 import { UserDto, UserRole } from '@/core/models/user.dto';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { AuditingEntity } from './auditing.entity';
 
 @Entity({ name: 'user' })

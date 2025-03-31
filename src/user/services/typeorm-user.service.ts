@@ -114,6 +114,7 @@ export class TypeormUserService implements UserService, OnApplicationBootstrap {
   }
 
   async updateRole(userId: string, role: UserRole): Promise<void> {
+    console.log("User role being updted: ", userId, role)
     const exists = await this.userRepo.existsBy({ id: userId });
     if (!exists) {
       throw new DomainError('User not found');

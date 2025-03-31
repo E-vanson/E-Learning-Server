@@ -2,13 +2,15 @@ import { DomainError } from "@/common/errors";
 import { EmployerProfileEntity } from "@/core/entities/employer-profile-entity";
 import { UserEntity } from "@/core/entities/user.entity";
 import { AuditEvent } from "@/core/events";
-import { PageDto, QueryDto } from "@/core/models";
+import { PageDto, QueryDto, UserJobRole } from "@/core/models";
 import { EmployerProfileDto } from "@/core/models/employer-profie.dto";
 import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.dto";
 import { EmployerPayloadDto } from "@/core/models/employer-profile-payload.dto";
 import { EmployerProfileQueryDto } from "@/core/models/employer-profile-query.dto";
 import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
+import { USER_SERVICE, UserService } from "@/core/services";
 import { EmployerProfileService } from "@/core/services/employer-profile.service";
+import { Inject } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
@@ -21,7 +23,9 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         @InjectRepository(EmployerProfileEntity)
         private employerProfileRepo: Repository<EmployerProfileEntity>,
         @InjectRepository(UserEntity)
-        private userRepo: Repository<UserEntity>
+        private userRepo: Repository<UserEntity>,
+        @Inject (USER_SERVICE)
+        private userService: UserService
     ) { }
     
     async create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto> {        
@@ -30,7 +34,10 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
             where: { userId: userId } 
         })
 
-        if (existingProfile) {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new DomainError("Please Create An Account First!!")
+
+        if (existingProfile || user.jobRole === "employer") {
             throw new DomainError("Employer Profile Already Exists");
         }
 
@@ -40,8 +47,10 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
             userId: values.userId,
             companyDescription: values.companydescription,
             companyName: values.companyName,
-            website: values.website
+            website: values.website,                        
         });
+
+        await this.userService.updateJobRole(userId, UserJobRole.EMPLOYER);
 
         const employerProfileId = newProfile.identifiers[0].id;
 

@@ -5,6 +5,7 @@ import { EmployerProfileController } from './controllers/employer-profile.contro
 import { EMPLOYER_PROFILE_SERVICE } from '@/core/services/employer-profile.service';
 import { TypeormEmployerProfileService } from './services/typeorm-employer-profile.service';
 import { UserEntity } from '@/core/entities/user.entity';
+import { UserModule } from '@/user/user.module';
 
 @Module({
     imports: [
@@ -12,6 +13,7 @@ import { UserEntity } from '@/core/entities/user.entity';
             EmployerProfileEntity,
             UserEntity
         ]),
+        UserModule
     ],
     controllers: [EmployerProfileController],
     providers: [

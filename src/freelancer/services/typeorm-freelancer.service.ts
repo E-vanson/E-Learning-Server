@@ -29,6 +29,9 @@ export class TypeormFreelancerService implements FreelancerService{
             const existingProfile = await this.freelancerRepo.findOne({
                 where: { userId: userId } 
             })
+
+            const user = await this.userRepo.findOne({ where: { id: userId } });
+            if (!user) throw new DomainError("Please Create An Account First!!")
     
             if (existingProfile) {
                 throw new DomainError("Freelancer Profile Already Exists");

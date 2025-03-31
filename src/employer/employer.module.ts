@@ -4,11 +4,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmployerProfileController } from './controllers/employer-profile.controller';
 import { EMPLOYER_PROFILE_SERVICE } from '@/core/services/employer-profile.service';
 import { TypeormEmployerProfileService } from './services/typeorm-employer-profile.service';
+import { UserEntity } from '@/core/entities/user.entity';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
-            EmployerProfileEntity
+            EmployerProfileEntity,
+            UserEntity
         ]),
     ],
     controllers: [EmployerProfileController],

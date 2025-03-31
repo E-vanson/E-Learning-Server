@@ -1,7 +1,8 @@
 import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.dto";
+import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { EMPLOYER_PROFILE_SERVICE, EmployerProfileService } from "@/core/services/employer-profile.service";
-import { Body, Controller, Inject, Post } from "@nestjs/common";
+import { Body, Controller, Inject, Param, Post, Put } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 
@@ -32,5 +33,13 @@ export class EmployerProfileController{
     async create(@Body() values: CreateEmployerProfileDto) {        
         const user = this.security.getAuthenticatedUser();        
         await this.employerProfileService.create(user.id, values)
+    }
+
+    @Put()
+    async updateProfile(
+        // @Param('id') profileId: string,
+        @Body() values:EmployerProfileUpdateDto,
+    ) {
+      return await this.employerProfileService.update(values)
     }
 }

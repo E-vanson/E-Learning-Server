@@ -6,6 +6,7 @@ import {
   QueryDto,
   UserCreateDto,
   UserDto,
+  UserJobRole,
   UserQueryDto,
   UserRole,
   UserUpdateDto,
@@ -120,6 +121,17 @@ export class TypeormUserService implements UserService, OnApplicationBootstrap {
 
     await this.userRepo.update(userId, {
       role: role,
+    });
+  }
+
+  async updateJobRole(userId: string, role: UserJobRole): Promise<void> {
+    const exists = await this.userRepo.existsBy({ id: userId });
+    if (!exists) {
+      throw new DomainError('User not found');
+    }
+
+    await this.userRepo.update(userId, {
+      jobRole: role,
     });
   }
 

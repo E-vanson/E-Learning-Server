@@ -3,12 +3,12 @@ import { EmployerProfileDto } from "../models/employer-profie.dto";
 import { CreateEmployerProfileDto } from "../models/employer-profile-create.dto";
 import { EmployerPayloadDto } from "../models/employer-profile-payload.dto";
 import { EmployerProfileQueryDto } from "../models/employer-profile-query.dto";
-import { UpdateEmployerProfileDto } from "../models/employer-profile-update.dto";
+import { EmployerProfileUpdateDto } from "../models/employer-profile-update.dto";
 
 export interface EmployerProfileService{
     create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto>;
 
-    // update(values: UpdateEmployerProfileDto): Promise<EmployerPayloadDto>;
+    update(values:EmployerProfileUpdateDto): Promise<void>;
     
     // findById(id: number): Promise<EmployerPayloadDto>;
 

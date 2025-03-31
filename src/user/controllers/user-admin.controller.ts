@@ -14,6 +14,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBody } from '@nestjs/swagger';
+import { UserUpdateJobRoleDto } from '@/core/models/user-update-job-role.dto';
 
 @ApiTags('User')
 @Controller('/admin/users')
@@ -38,5 +39,14 @@ export class UserAdminController {
       throw new BadRequestException('Owner role grant is forbidden');
     }
     await this.userService.updateRole(userId, role);
+  }
+
+  @ApiBody({ type: UserUpdateJobRoleDto })
+  @Put(':id/job-role')
+  async updateJobRole(
+    @Param('id') userId: string,
+    @Body() userUpdateJobRoleDto: UserUpdateJobRoleDto,
+  ) {    
+    await this.userService.updateJobRole(userId, userUpdateJobRoleDto.jobRole);
   }
 }

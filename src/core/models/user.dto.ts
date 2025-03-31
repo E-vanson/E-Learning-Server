@@ -6,7 +6,10 @@ export enum UserRole {
   CONTRIBUTOR = 'contributor',
   AUTHOR = 'author',
   ADMIN = 'admin',
-  OWNER = 'owner',
+  OWNER = 'owner', 
+}
+
+export enum UserJobRole{
   FREELANCER = 'freelancer',
   EMPLOYER = 'employer'
 }
@@ -16,6 +19,7 @@ export class UserDto {
   nickname: string;
   username: string;
   role: UserRole;
+  jobRole: UserJobRole;
   email: string;
   emailVerified: boolean;
   headline?: string;

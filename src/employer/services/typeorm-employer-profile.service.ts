@@ -1,21 +1,27 @@
 import { DomainError } from "@/common/errors";
 import { EmployerProfileEntity } from "@/core/entities/employer-profile-entity";
+import { UserEntity } from "@/core/entities/user.entity";
+import { AuditEvent } from "@/core/events";
 import { PageDto } from "@/core/models";
 import { EmployerProfileDto } from "@/core/models/employer-profie.dto";
 import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.dto";
 import { EmployerPayloadDto } from "@/core/models/employer-profile-payload.dto";
 import { EmployerProfileQueryDto } from "@/core/models/employer-profile-query.dto";
-import { UpdateEmployerProfileDto } from "@/core/models/employer-profile-update.dto";
+import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
 import { EmployerProfileService } from "@/core/services/employer-profile.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 
 
-export class TypeormEmployerProfileService implements EmployerProfileService{
+export class TypeormEmployerProfileService implements EmployerProfileService{    
     constructor(
         private dataSource: DataSource,
+        private eventEmitter: EventEmitter2,
         @InjectRepository(EmployerProfileEntity)
         private employerProfileRepo: Repository<EmployerProfileEntity>,
+        @InjectRepository(UserEntity)
+        private userRepo: Repository<UserEntity>
     ) { }
     
     async create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto> {        
@@ -45,6 +51,51 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
 
         return employerProfile.toDto();
     }
+
+    async update(values: EmployerProfileUpdateDto): Promise<void> {
+    // Verify user exists
+    if (!(await this.userRepo.existsBy({ id: values.userId }))) {
+        throw new DomainError('User not found');
+    }
+
+    const profileId = values.id;
+    const entity = await this.employerProfileRepo.findOne({
+        where: { id: profileId }        
+    });
+
+    if (!entity) {
+        throw new DomainError('Employer profile not found');
+    }
+    
+    const dbUpdatedAt = new Date(entity.updatedAt).getTime();
+    const userUpdatedAt = new Date(values.updatedAt).getTime();
+
+    if (dbUpdatedAt > userUpdatedAt) {
+        throw new DomainError('Profile has been modified since your last request. Please refresh.');
+    }
+
+    await this.dataSource.transaction(async (em) => {        
+        await em.update(EmployerProfileEntity, profileId, {
+            companyName: values.companyName,
+            companyDescription: values.companyDescription,
+            website: values.website,            
+            userId:  values.userId,             
+        });
+        
+    });
+
+    this.eventEmitter.emit(
+        'audit.updated',
+        new AuditEvent({
+            resourceId: `${profileId}`,
+            resourceType: 'employer_profile',
+            context: JSON.stringify({ 
+                company: values.companyName,
+                updatedBy: values.userId 
+            }),
+        }),
+    );
+}
     
     // async update(values: UpdateEmployerProfileDto): Promise<EmployerPayloadDto> {
         

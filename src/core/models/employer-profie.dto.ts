@@ -12,6 +12,7 @@ export class EmployerProfileDto{
     companyName: string;
     companyDescription: string;
     website?: string;
+    publishedAt?: string;
 
     audit?: AuditingDto;   
 

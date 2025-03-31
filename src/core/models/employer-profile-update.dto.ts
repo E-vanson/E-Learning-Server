@@ -1,13 +1,12 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import { IsDateString, IsNumber } from "class-validator";
+import { IsDateString, IsNumber, IsString } from "class-validator";
 import { UserDto } from "./user.dto";
 
 
-export class UpdateEmployerProfileDto{
-    @IsNumber()
-    id: number;
-
-    user?: UserDto;
+export class EmployerProfileUpdateDto{
+    @IsString()
+    id: string;
+    userId?: string;
     
     companyName?: string;
     companyDescription?: string;
@@ -17,5 +16,5 @@ export class UpdateEmployerProfileDto{
     updatedAt: string;
     
     @ApiHideProperty()
-    updatedBy: string;
+    updatedBy?: string;
 }

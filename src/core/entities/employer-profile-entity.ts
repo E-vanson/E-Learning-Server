@@ -31,6 +31,16 @@ export class EmployerProfileEntity extends AuditingEntity {
 
   @Column({ type: 'varchar', length: 255 })
   website: string;
+  
+  @CreateDateColumn({
+    name: 'published_at',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  publishedAt?: Date | null;
+
+  @Column({ name: 'published_by', type: 'varchar', nullable: true })
+  publishedBy?: string | null;
 
   toDto() {
     return new EmployerProfileDto({
@@ -40,6 +50,7 @@ export class EmployerProfileEntity extends AuditingEntity {
       companyDescription: this.companyDescription,
       website: this.website,
       audit: this.toAudit(),
+      publishedAt: this.publishedAt?.toISOString(),
     });
   }
 }

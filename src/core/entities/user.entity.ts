@@ -1,4 +1,4 @@
-import { UserDto, UserRole } from '@/core/models/user.dto';
+import { UserDto, UserJobRole, UserRole } from '@/core/models/user.dto';
 import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { AuditingEntity } from './auditing.entity';
 
@@ -19,6 +19,13 @@ export class UserEntity extends AuditingEntity {
     default: UserRole.USER,
   })
   role: UserRole;
+
+   @Column({
+    type: 'enum',
+    enum: UserJobRole,
+    default: UserJobRole.FREELANCER,
+  })
+  jobRole: UserJobRole;
 
   @Column()
   email: string;

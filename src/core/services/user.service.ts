@@ -2,6 +2,7 @@ import {
   PageDto,
   UserCreateDto,
   UserDto,
+  UserJobRole,
   UserQueryDto,
   UserRole,
   UserUpdateDto,
@@ -13,6 +14,8 @@ export interface UserService {
   update(values: UserUpdateDto): Promise<void>;
 
   updateRole(userId: string, role: UserRole): Promise<void>;
+
+  updateJobRole(userId: string, role: UserJobRole): Promise<void>;
 
   updateImage(userId: string, image: string): Promise<void>;
 

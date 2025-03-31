@@ -1,12 +1,7 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
-  JoinColumn,
-  PrimaryColumn,
+  Column,  
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { AuditingEntity } from './auditing.entity';
@@ -17,9 +12,6 @@ export class EmployerProfileEntity extends AuditingEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // @OneToOne(() => UserEntity)
-  // @JoinColumn({ name: 'id' })
-  // user: UserEntity;
   @Column({ name: 'user_id' })
   userId: string;
 

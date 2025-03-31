@@ -14,7 +14,7 @@ import { EmployerProfileQueryDto } from "@/core/models/employer-profile-query.dt
 
 @ApiTags('EmployerProfile')
 @ApiBearerAuth()
-@Controller('employer-controller')    
+@Controller('employer')    
 export class EmployerProfileController{
     constructor(
         private security: SecurityContextService,
@@ -26,7 +26,7 @@ export class EmployerProfileController{
     @ApiOperation({ summary: 'Create employer profile' })
     @ApiResponse({ 
         status: 201, 
-        description: 'Employer profile created successfully' 
+        description: 'Freelancer profile created successfully' 
     })
     @ApiResponse({ 
         status: 401, 
@@ -43,10 +43,10 @@ export class EmployerProfileController{
 
     @Put()
     async updateProfile(
-        // @Param('id') profileId: string,
+        @Param('id') profileId: string,
         @Body() values:EmployerProfileUpdateDto,
     ) {
-      return await this.employerProfileService.update(values)
+      return await this.employerProfileService.update(profileId, values)
     }
 
      @SerializeOptions({//determines how the response objec should be serialised

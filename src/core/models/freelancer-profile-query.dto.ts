@@ -6,10 +6,10 @@ import { UserDto } from "./user.dto";
 export class FreelancerProfileQueryDto extends QueryDto{
     q?: string;
 
-    user?: UserDto;
+    userId?: string;
 
     @IsOptional()
-    headline?: string;
+    headline?: string;    
 
     @IsOptional()
     hourlyrate?: number;

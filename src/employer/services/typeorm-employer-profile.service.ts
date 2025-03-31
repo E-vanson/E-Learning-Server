@@ -52,13 +52,12 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         return employerProfile.toDto();
     }
 
-    async update(values: EmployerProfileUpdateDto): Promise<void> {
+    async update(profileId:string, values: EmployerProfileUpdateDto): Promise<void> {
     // Verify user exists
     if (!(await this.userRepo.existsBy({ id: values.userId }))) {
         throw new DomainError('User not found');
     }
-
-    const profileId = values.id;
+        
     const entity = await this.employerProfileRepo.findOne({
         where: { id: profileId }        
     });
@@ -116,61 +115,6 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         
     }
    
-    // async find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>> {
-    //     const { limit, offset } = QueryDto.getPageable(query);
-
-    //     const baseQuery = this.employerProfileRepo.createQueryBuilder('profile');
-
-    //     if (query.companyName) baseQuery.andWhere('profile.companyName = :companyName', { companyName: query.companyName });
-    //     if (query.companyDescription) baseQuery.andWhere('profile.companyDescription = :companyDescription', { companyDescription: query.companyDescription });
-    //     if (query.website) baseQuery.andWhere('profile.website = :website', { website: query.website });
-    //     if (query.q) {
-    //         baseQuery.andWhere('LOWER(profile.companyName) LIKE LOWER(:companyName)', {
-    //             companyName: `%${query.q}%`,
-    //         });
-    //     }
-    //     let orderBy = 'profile.createdAt';
-    //     if (query.orderBy === 'publishedAt') orderBy = 'profile.publishedAt';
-        
-    //     baseQuery.orderBy(orderBy, 'DESC')
-
-    //     const idQuery = baseQuery.clone();
-    //     const dataQuery = baseQuery.clone();
-        
-    //     idQuery
-    //         .leftJoin('profile.companyName', 'companyName')
-    //         .leftJoin('profile.companyDescription', 'companyDescription')
-    //         .leftJoin('profile.website', 'profile.website');
-
-    //     const count = await idQuery.getCount();
-
-    //     idQuery.select(['profile.id', orderBy]).distinct();
-        
-    //     idQuery.offset(offset).limit(limit);
-        
-    //     const idList = await idQuery.getMany();
-    
-    //     let list: EmployerProfileEntity[] = [];
-
-    //     if (idList.length > 0) {
-    //         dataQuery
-    //         .andWhereInIds(idList.map((e) => e.id))
-    //         .leftJoinAndSelect('profile.companyName', 'companyName')
-    //         .leftJoinAndSelect('profile.companyDescription', 'companyDescription')
-    //         .leftJoinAndSelect('profile.website', 'profile');
-
-    //         list = await dataQuery.getMany();
-    //     }
-
-    //     return PageDto.from({
-    //         list: list.map((e) => e.toDto()),
-    //         count: count,
-    //         offset: offset,
-    //         limit: limit,
-    //     });
-        
-        
-    // }
     async find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>> {
     const { limit, offset } = QueryDto.getPageable(query);
 

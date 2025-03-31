@@ -11,17 +11,16 @@ import {
 import { UserEntity } from './user.entity';
 import { audit } from 'rxjs';
 import { AuditingEntity } from './auditing.entity';
-import { FreelancerProfileDto } from '../models/freelancer-profile.dto';
+import { FreelancerProfileDto, PortfolioLinks } from '../models/freelancer-profile.dto';
 
 
 @Entity('freelancer_profile')
 export class FreelancerProfileEntity extends AuditingEntity {
-  @PrimaryColumn()
-  id: number;
-
-  @OneToOne(() => UserEntity)
-  @JoinColumn({ name: 'id' })
-  user: UserEntity;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+  
+  @Column({ name: 'user_id' })
+  userId: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   headline: string;
@@ -36,41 +35,21 @@ export class FreelancerProfileEntity extends AuditingEntity {
   skills: string[];
 
   @Column({ type: 'jsonb', nullable: true })
-  portfolioLinks: Record<string, any>;
-
-  @CreateDateColumn({
-    name: 'published_at',
-    type: 'timestamptz',
-    nullable: true,
-   })
-  publishedAt?: Date | null;
+  portfolioLinks: PortfolioLinks[];
   
   @Column({ name: 'published_by', type: 'varchar', nullable: true })
   publishedBy?: string   
   
-    toDto(compact?: boolean) {
-        if (compact) {                            
+    toDto() {        
         return new FreelancerProfileDto({
             id: this.id,
-            user: this.user?.toDto(),
+            userId: this.userId,
             headline: this.headline,
             overview: this.overview,
             hourlyRate: this.hourlyRate,
             skills: this.skills,
             portfolioLinks: this.portfolioLinks,
-            audit: this.toAudit()
-        })            
-        }
-        return new FreelancerProfileDto({
-            id: this.id,
-            user: this.user?.toDto(),
-            headline: this.headline,
-            overview: this.overview,
-            hourlyRate: this.hourlyRate,
-            skills: this.skills,
-            portfolioLinks: this.portfolioLinks,
-            audit: this.toAudit(),
-            publishedAt: this.publishedAt?.toISOString(),
+            audit: this.toAudit(),           
         })
     }
 }

@@ -8,7 +8,7 @@ import { EmployerProfileUpdateDto } from "../models/employer-profile-update.dto"
 export interface EmployerProfileService{
     create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto>;
 
-    update(values:EmployerProfileUpdateDto): Promise<void>;
+    update(profileId: string, values:EmployerProfileUpdateDto): Promise<void>;
     
     findById(id: string): Promise<EmployerProfileDto | undefined>;
 

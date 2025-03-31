@@ -2,17 +2,20 @@ import { Transform } from "class-transformer";
 import { UserDto } from "./user.dto";
 import { AuditingDto } from "./auditing.dto";
 
+export interface PortfolioLinks{
+  platform: string; 
+  url: string;  
+}
 
-export class FreelancerProfileDto{
-    @Transform(({ value }) => Number(value))
-    id: number;
+export class FreelancerProfileDto{   
+    id: string;
 
-    user?: UserDto;
+    userId?: string;
     headline?: string;
     overview?: string;
     hourlyRate?: number;
     skills?: string[];
-    portfolioLinks?: Record<string, string>;
+    portfolioLinks?: PortfolioLinks[];
     publishedAt?: string;    
     audit?: AuditingDto; 
     

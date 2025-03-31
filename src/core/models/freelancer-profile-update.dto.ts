@@ -1,18 +1,18 @@
-import { IsDateString, IsNumber } from "class-validator";
+import { IsArray, IsDateString, IsNumber } from "class-validator";
 import { UserDto } from "./user.dto";
 import { ApiHideProperty } from "@nestjs/swagger";
+import { PortfolioLinks } from "./freelancer-profile.dto";
 
 
-export class UpdateFreelancerProfileDto{
-    @IsNumber()
-    id: number;
-
-    user?: UserDto;
+export class UpdateFreelancerProfileDto{        
+    userId?: string;
     headline?: string;    
     overview: string;
     hourlyRate?: number;
+    @IsArray()
     skills?: string[];
-    portfolioLinks?: Record<string, string>; 
+    @IsArray()
+    portfolioLinks?: PortfolioLinks[]; 
 
     @IsDateString()
     updatedAt: string;

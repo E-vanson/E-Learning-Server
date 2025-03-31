@@ -59,7 +59,7 @@ export class CourseAdminController {
     @Inject(FILE_STORAGE_SERVICE)
     private fileStorageService: FileStorageService,
   ) {}
-
+  
   @Post()
   async create(@Body(CourseCreateTransformPipe) values: CourseCreateDto) {
     return await this.courseService.create(values);

@@ -3,9 +3,7 @@ import { IsDateString, IsNumber, IsString } from "class-validator";
 import { UserDto } from "./user.dto";
 
 
-export class EmployerProfileUpdateDto{
-    @IsString()
-    id: string;
+export class EmployerProfileUpdateDto{   
     userId?: string;
     
     companyName?: string;

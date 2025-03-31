@@ -2,8 +2,10 @@ import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.
 import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { EMPLOYER_PROFILE_SERVICE, EmployerProfileService } from "@/core/services/employer-profile.service";
-import { Body, Controller, Inject, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Inject, Param, ParseIntPipe, Post, Put, Res, SerializeOptions, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Response } from 'express';
+import { EmployerProfileOwnerGuard } from "../guards/employer-profile.guard";
 
 
 @ApiTags('EmployerProfile')
@@ -42,4 +44,27 @@ export class EmployerProfileController{
     ) {
       return await this.employerProfileService.update(values)
     }
+
+    //  @SerializeOptions({//determines how the response objec should be serialised
+    //     groups: ['detail'],
+    //   })
+      @UseGuards(EmployerProfileOwnerGuard)
+      @Get(':id')
+      async getEmployerProfile(
+        @Param('id') id: string,
+        @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
+      ) {
+        const result = await this.employerProfileService.findById(id);
+        if (!result) {
+          resp.status(HttpStatus.NO_CONTENT);
+        }    
+        return result;
+     }
+    
+    @UseGuards(EmployerProfileOwnerGuard)
+      @Delete(':id')
+      async delete(@Param('id') id: string) {
+        await this.employerProfileService.delete(id);
+      }
+    
 }

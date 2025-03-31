@@ -10,13 +10,13 @@ export interface EmployerProfileService{
 
     update(values:EmployerProfileUpdateDto): Promise<void>;
     
-    // findById(id: number): Promise<EmployerPayloadDto>;
+    findById(id: string): Promise<EmployerProfileDto | undefined>;
 
     // findByUsername(username: string): Promise<EmployerPayloadDto | undefined>;
 
     // find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerPayloadDto>>;        
 
-    // delete(id: number): Promise<undefined>
+    delete(id: string): Promise<void>
 }
 
 export const EMPLOYER_PROFILE_SERVICE = 'EmployerProfileService';

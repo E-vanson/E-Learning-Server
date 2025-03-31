@@ -97,9 +97,25 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
     );
 }
     
-    // async update(values: UpdateEmployerProfileDto): Promise<EmployerPayloadDto> {
+    async delete(id: string): Promise<void> {
+        const entity = await this.employerProfileRepo.findOneBy({ id: id });
+        if (!entity) throw new DomainError("Profile Not Found");
+
+        await this.dataSource.transaction(async (em) => {
+            await em.delete(EmployerProfileEntity, id);
+        });
+
+        this.eventEmitter.emit(
+            'employer-profile.deleted',
+            new AuditEvent({
+                resourceId: `${id}`,
+                resourceType: 'employer-profile',
+                context: JSON.stringify({companyName: entity.companyName})
+            })
+        )
         
-    // }
+    }
+   
 
     // async find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerPayloadDto>> {
         
@@ -109,12 +125,12 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         
     // }
 
-    // async findById(id: number): Promise<EmployerPayloadDto> {
+    async findById(id: string): Promise<EmployerProfileDto | undefined> {
+        const entity = await this.employerProfileRepo.findOneBy({ id: id });
         
-    // }
+        return entity?.toDto();        
+    }
 
-    // async delete(id: number): Promise<undefined> {
-        
-    // }
+   
 }
 

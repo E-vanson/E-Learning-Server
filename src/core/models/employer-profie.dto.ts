@@ -1,10 +1,11 @@
 import { Expose, Transform } from 'class-transformer';
 import { UserDto } from './user.dto';
 import { AuditingDto } from './auditing.dto';
+import { IsUUID } from 'class-validator';
 
 
 export class EmployerProfileDto{
-    @Transform(({ value }) => Number(value))
+    @IsUUID('4')
     id: string;
     userId: string;
     

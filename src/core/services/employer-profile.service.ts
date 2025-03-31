@@ -12,9 +12,9 @@ export interface EmployerProfileService{
     
     findById(id: string): Promise<EmployerProfileDto | undefined>;
 
-    // findByUsername(username: string): Promise<EmployerPayloadDto | undefined>;
+    findByCompanyName(companyName: string): Promise<EmployerProfileDto | undefined>;
 
-    // find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerPayloadDto>>;        
+    find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>>;        
 
     delete(id: string): Promise<void>
 }

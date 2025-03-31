@@ -2,7 +2,7 @@ import { DomainError } from "@/common/errors";
 import { EmployerProfileEntity } from "@/core/entities/employer-profile-entity";
 import { UserEntity } from "@/core/entities/user.entity";
 import { AuditEvent } from "@/core/events";
-import { PageDto } from "@/core/models";
+import { PageDto, QueryDto } from "@/core/models";
 import { EmployerProfileDto } from "@/core/models/employer-profie.dto";
 import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.dto";
 import { EmployerPayloadDto } from "@/core/models/employer-profile-payload.dto";
@@ -116,14 +116,122 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         
     }
    
+    // async find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>> {
+    //     const { limit, offset } = QueryDto.getPageable(query);
 
-    // async find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerPayloadDto>> {
+    //     const baseQuery = this.employerProfileRepo.createQueryBuilder('profile');
+
+    //     if (query.companyName) baseQuery.andWhere('profile.companyName = :companyName', { companyName: query.companyName });
+    //     if (query.companyDescription) baseQuery.andWhere('profile.companyDescription = :companyDescription', { companyDescription: query.companyDescription });
+    //     if (query.website) baseQuery.andWhere('profile.website = :website', { website: query.website });
+    //     if (query.q) {
+    //         baseQuery.andWhere('LOWER(profile.companyName) LIKE LOWER(:companyName)', {
+    //             companyName: `%${query.q}%`,
+    //         });
+    //     }
+    //     let orderBy = 'profile.createdAt';
+    //     if (query.orderBy === 'publishedAt') orderBy = 'profile.publishedAt';
+        
+    //     baseQuery.orderBy(orderBy, 'DESC')
+
+    //     const idQuery = baseQuery.clone();
+    //     const dataQuery = baseQuery.clone();
+        
+    //     idQuery
+    //         .leftJoin('profile.companyName', 'companyName')
+    //         .leftJoin('profile.companyDescription', 'companyDescription')
+    //         .leftJoin('profile.website', 'profile.website');
+
+    //     const count = await idQuery.getCount();
+
+    //     idQuery.select(['profile.id', orderBy]).distinct();
+        
+    //     idQuery.offset(offset).limit(limit);
+        
+    //     const idList = await idQuery.getMany();
+    
+    //     let list: EmployerProfileEntity[] = [];
+
+    //     if (idList.length > 0) {
+    //         dataQuery
+    //         .andWhereInIds(idList.map((e) => e.id))
+    //         .leftJoinAndSelect('profile.companyName', 'companyName')
+    //         .leftJoinAndSelect('profile.companyDescription', 'companyDescription')
+    //         .leftJoinAndSelect('profile.website', 'profile');
+
+    //         list = await dataQuery.getMany();
+    //     }
+
+    //     return PageDto.from({
+    //         list: list.map((e) => e.toDto()),
+    //         count: count,
+    //         offset: offset,
+    //         limit: limit,
+    //     });
+        
         
     // }
+    async find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>> {
+    const { limit, offset } = QueryDto.getPageable(query);
 
-    // async findByUsername(username: string): Promise<EmployerPayloadDto | undefined> {
-        
-    // }
+    // Main query builder
+    const queryBuilder = this.employerProfileRepo.createQueryBuilder('profile');
+
+    // Apply filters
+    if (query.companyName) {
+        queryBuilder.andWhere('profile.companyName ILIKE :companyName', { 
+            companyName: `%${query.companyName}%` 
+        });
+    }
+
+    if (query.companyDescription) {
+        queryBuilder.andWhere('profile.companyDescription ILIKE :companyDescription', {
+            companyDescription: `%${query.companyDescription}%`
+        });
+    }
+
+    if (query.website) {
+        queryBuilder.andWhere('profile.website = :website', { 
+            website: query.website 
+        });
+    }
+
+    if (query.q) {
+        queryBuilder.andWhere(
+            '(LOWER(profile.companyName) LIKE LOWER(:search) OR ' +
+            'LOWER(profile.companyDescription) LIKE LOWER(:search))',
+            { search: `%${query.q}%` }
+        );
+    }
+
+    // Ordering
+    const orderBy = query.orderBy === 'publishedAt' 
+        ? 'profile.publishedAt' 
+        : 'profile.createdAt';
+    queryBuilder.orderBy(orderBy, 'DESC');
+
+    // Get total count
+    const totalCount = await queryBuilder.getCount();
+
+    // Apply pagination
+    queryBuilder.skip(offset).take(limit);
+
+    // Execute query
+    const results = await queryBuilder.getMany();
+    console.log(results, "The results of the query:")
+
+    return PageDto.from({
+        list: results.map(e => e.toDto()),
+        count: totalCount,
+        offset,
+        limit
+    });
+}
+
+    async findByCompanyName(companyName: string): Promise<EmployerProfileDto | undefined> {
+        const entity = await this.employerProfileRepo.findOne({ where: { companyName: companyName } });
+        return entity?.toDto();        
+    }
 
     async findById(id: string): Promise<EmployerProfileDto | undefined> {
         const entity = await this.employerProfileRepo.findOneBy({ id: id });

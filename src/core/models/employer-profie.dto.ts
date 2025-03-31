@@ -7,13 +7,12 @@ import { IsUUID } from 'class-validator';
 export class EmployerProfileDto{
     @IsUUID('4')
     id: string;
+  
     userId: string;
-    
-    @Expose()
+        
     companyName: string;
     companyDescription: string;
-    website?: string;
-    publishedAt?: string;
+    website?: string;    
 
     audit?: AuditingDto;   
 

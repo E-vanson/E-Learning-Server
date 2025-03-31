@@ -7,7 +7,8 @@ import { UserDto } from "./user.dto";
 export class EmployerProfileQueryDto extends QueryDto{
     q?: string;
 
-    user?: UserDto;
+    @IsOptional()
+    userId?: string;
 
     @IsOptional()
     companyName?: string;

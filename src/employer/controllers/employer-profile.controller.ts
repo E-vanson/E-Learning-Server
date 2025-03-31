@@ -2,10 +2,14 @@ import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.
 import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { EMPLOYER_PROFILE_SERVICE, EmployerProfileService } from "@/core/services/employer-profile.service";
-import { Body, Controller, Delete, Get, HttpStatus, Inject, Param, ParseIntPipe, Post, Put, Res, SerializeOptions, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Inject, Param, ParseIntPipe, Post, Put, Query, Res, SerializeOptions, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from 'express';
 import { EmployerProfileOwnerGuard } from "../guards/employer-profile.guard";
+import { ApiOkResponsePaginated } from "@/common/decorators";
+import { EmployerProfileDto } from "@/core/models/employer-profie.dto";
+import { EmployerProfileQueryTransformPipe } from "../pipes/employer-profile-query.pipe";
+import { EmployerProfileQueryDto } from "@/core/models/employer-profile-query.dto";
 
 
 @ApiTags('EmployerProfile')
@@ -45,9 +49,9 @@ export class EmployerProfileController{
       return await this.employerProfileService.update(values)
     }
 
-    //  @SerializeOptions({//determines how the response objec should be serialised
-    //     groups: ['detail'],
-    //   })
+     @SerializeOptions({//determines how the response objec should be serialised
+        groups: ['detail'],
+      })
       @UseGuards(EmployerProfileOwnerGuard)
       @Get(':id')
       async getEmployerProfile(
@@ -66,5 +70,27 @@ export class EmployerProfileController{
       async delete(@Param('id') id: string) {
         await this.employerProfileService.delete(id);
       }
+
+     @SerializeOptions({
+         groups: ['detail'],
+     })
+     @Get(':companyName')
+     async getProfileByCompanyName(
+         @Param('companyName') companyName: string,
+         @Res({ passthrough: true }) resp: Response,
+     ) {
+         const result = await this.employerProfileService.findByCompanyName(companyName);
+         if (!result) {
+             resp.status(HttpStatus.NO_CONTENT);
+             return undefined;
+         }
+         return result;
+     }
+
+    @ApiOkResponsePaginated(EmployerProfileDto)
+    @Get()
+    async find(@Query(EmployerProfileQueryTransformPipe) query: EmployerProfileQueryDto) {
+        return await this.employerProfileService.find(query);
+    }
     
 }

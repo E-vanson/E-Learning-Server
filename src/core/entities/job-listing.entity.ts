@@ -1,31 +1,35 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { AuditingEntity } from './auditing.entity';
 import { BudgetType, ExperienceLevel, JobListingDto, JobStatus } from '../models/job-listing.dto';
+import { EmployerProfileEntity } from './employer-profile-entity';
 
 
 @Entity('job_listing')
 export class JobListingEntity extends AuditingEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity)
-  @JoinColumn({ name: 'id' })
-  employer: UserEntity;
+  @ManyToOne(() => EmployerProfileEntity)
+  @JoinColumn({ name: 'userId' })
+  employer: EmployerProfileEntity;
+
+  @Column({ type: 'varchar', length: 2000 })
+  employerId: string
 
   @Column({ type: 'varchar', length: 2000 })
   title: string;
     
-  @Column({ length: 2000, unique: true })
+  @Column({ length: 2000})
   slug: string;  
 
   @Column({ type: 'text', nullable: true  })
@@ -71,26 +75,10 @@ export class JobListingEntity extends AuditingEntity {
   @Column({ name: 'published_by', type: 'varchar', nullable: true })
   publishedBy?: string                          ;  
     
-    toDto(compact?: boolean) {
-        if (compact) {
-            return new JobListingDto({
-                id: this.id,
-                employer: this.employer.toDto(),
-                title: this.title,
-                slug: this.slug,
-                description: this.description,
-                skillsRequired: this.skillsRequired,
-                budget: this.budget,
-                budgetType: this.budgetType,
-                deadline: this.deadline,
-                experienceLevel: this.experienceLevel,
-                status: this.status,
-                audit: this.toAudit(),
-            });
-        }
+    toDto() {        
         return new JobListingDto({
             id: this.id,
-            employer: this.employer.toDto(),
+            employer: this.employer,
             title: this.title,
             slug: this.slug,
             description: this.description,

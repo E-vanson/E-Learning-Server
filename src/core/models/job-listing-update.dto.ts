@@ -10,38 +10,39 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { BudgetType, ExperienceLevel } from './job-listing.dto';
+import { BudgetType, ExperienceLevel, JobStatus } from './job-listing.dto';
 
 export class JobListingUpdateDto{
     @IsString()
-    id: string;
+    id?: string;
     
     @MaxLength(2000)
-    title: string;
-
-    @IsNotEmpty()
+    title?: string;
+    
     @MaxLength(2000)
-    slug: string;
+    slug?: string;
 
     description?: string;
 
-    skillsRequired: string[];
+    skillsRequired?: string[];
 
-    budget: number;
+    budget?: number;
+  
+    status?: JobStatus;
 
     @IsEnum(BudgetType)
-    budgetType: BudgetType;
+    budgetType?: BudgetType;
 
     @IsDateString()
-    deadline: Date;
+    deadline?: Date;
 
     @IsEnum(ExperienceLevel)
-    experienceLevel: ExperienceLevel;
+    experienceLevel?: ExperienceLevel;
 
     @IsDateString()
     updatedAt: string;
 
     @ApiHideProperty()
-    updatedBy: string;
+    updatedBy?: string;
 
 }

@@ -13,9 +13,10 @@ export class JobListingCreateDto{
     @IsNotEmpty()
     @MaxLength(2000)
     title: string;
+    
+    employer?: UserDto;
 
-    @IsNotEmpty()
-    employer: UserDto;
+    employerId?: string;
 
     description?: string;
 

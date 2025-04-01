@@ -1,6 +1,7 @@
 import { Expose, Type } from "class-transformer";
 import { UserDto } from "./user.dto";
 import { AuditingDto } from "./auditing.dto";
+import { EmployerProfileDto } from "./employer-profie.dto";
 
 export enum BudgetType {
   FIXED = 'fixed',
@@ -24,8 +25,8 @@ export class JobListingDto{
   id: string;
 
   @Expose()
-  @Type(() => UserDto)
-  employer: UserDto;
+  @Type(() => EmployerProfileDto)
+  employer: EmployerProfileDto;
 
   @Expose()
   title: string;

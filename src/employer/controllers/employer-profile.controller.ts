@@ -41,7 +41,8 @@ export class EmployerProfileController{
         await this.employerProfileService.create(user.id, values)
     }
 
-    @Put()
+    @Put(':id')
+    @UseGuards(EmployerProfileOwnerGuard)
     async updateProfile(
         @Param('id') profileId: string,
         @Body() values:EmployerProfileUpdateDto,

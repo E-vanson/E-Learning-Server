@@ -32,15 +32,15 @@ export class EmployerProfileOwnerGuard implements CanActivate {
       return false;
     }
 
-        try {
-          const profile = await this.profileService.findById(profileId);
-                
-          return profile?.userId === user.id;
-        } catch (error) {
-          if (error instanceof NotFoundException) {
-            return false;
-          }
-          throw error;
-        }
+    try {
+      const profile = await this.profileService.findById(profileId);
+            
+      return profile?.userId === user.id;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return false;
+      }
+      throw error;
+    }
   }
 }

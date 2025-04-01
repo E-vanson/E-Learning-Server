@@ -50,27 +50,27 @@ export class EmployerProfileController{
       return await this.employerProfileService.update(profileId, values)
     }
 
-     @SerializeOptions({//determines how the response objec should be serialised
-        groups: ['detail'],
-      })
-      @UseGuards(EmployerProfileOwnerGuard)
-      @Get(':id')
-      async getEmployerProfile(
-        @Param('id') id: string,
-        @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
-      ) {
+    @SerializeOptions({//determines how the response objec should be serialised
+    groups: ['detail'],
+    })
+    @UseGuards(EmployerProfileOwnerGuard)
+    @Get(':id')
+    async getEmployerProfile(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
+    ) {
         const result = await this.employerProfileService.findById(id);
         if (!result) {
-          resp.status(HttpStatus.NO_CONTENT);
+            resp.status(HttpStatus.NO_CONTENT);
         }    
         return result;
-     }
+    }
     
     @UseGuards(EmployerProfileOwnerGuard)
-      @Delete(':id')
-      async delete(@Param('id') id: string) {
-        await this.employerProfileService.delete(id);
-      }
+    @Delete(':id')
+    async delete(@Param('id') id: string) {
+    await this.employerProfileService.delete(id);
+    }
 
      @SerializeOptions({
          groups: ['detail'],

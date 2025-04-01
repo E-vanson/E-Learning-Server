@@ -2,7 +2,7 @@ import { JobListingCreateDto } from "@/core/models/job-listing-create.dto";
 import { JobListingUpdateDto } from "@/core/models/job-listing-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { JOB_SERVICE, JobService } from "@/core/services/job.service";
-import { Body, Controller, Get, Inject, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobOwnerGuard } from "../guards/job.guard";
 import { ApiOkResponsePaginated } from "@/common/decorators";
@@ -61,5 +61,11 @@ export class JobController{
     @Get()
     async find(@Query(JobQueryTransformPipe) query: JobListingQueryDto) {
         return await this.jobService.find(query);
+    }
+
+    @UseGuards(JobOwnerGuard)
+    @Delete(':id')
+    async delete(@Param('id') id: string) {
+        await this.jobService.delete(id);
     }
 }

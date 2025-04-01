@@ -16,7 +16,7 @@ export interface EmployerProfileService{
 
     find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>>;        
 
-    delete(id: string): Promise<void>
+    delete(id: string): Promise<void>;
 }
 
 export const EMPLOYER_PROFILE_SERVICE = 'EmployerProfileService';

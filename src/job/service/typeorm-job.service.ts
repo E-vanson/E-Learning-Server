@@ -154,22 +154,20 @@ export class TypeormJobService implements JobService{
         }
 
         if (query.skillsRequired) {
-            const skillsArray = Array.isArray(query.skillsRequired) 
-                ? query.skillsRequired 
+            const skillsArray = Array.isArray(query.skillsRequired)
+                ? query.skillsRequired
                 : [query.skillsRequired];
-            
-            // Convert search terms to lowercase
+                        
             const lowerCaseSkills = skillsArray.map(skill => skill.toLowerCase());
             
             queryBuilder.andWhere(
                 `EXISTS (
                     SELECT 1 FROM unnest(job.skillsRequired) AS skill 
                     WHERE LOWER(skill) = ANY(ARRAY[:...skills]::varchar[])
-                )`, 
+                )`,
                 { skills: lowerCaseSkills }
             );
-}
-
+        }    
 
         if (query.minBudget) {
             queryBuilder.andWhere('job.budget >= :minBudget', {
@@ -230,5 +228,23 @@ export class TypeormJobService implements JobService{
             offset,
             limit
         });
-}
+    }
+
+    async delete(id: string): Promise<void>{
+        const entity = await this.jobRepo.findOneBy({ id: id });
+        if (!entity) throw new DomainError("Job Not Found");
+
+        await this.dataSource.transaction(async (em) => {
+            await em.delete(JobListingEntity, id);
+        });
+
+        this.eventEmitter.emit(
+            'job.deleted',
+            new AuditEvent({
+                resourceId: `${id}`,
+                resourceType: 'job',
+                context: JSON.stringify({title: entity.title})
+            })
+        )
+    }
 }

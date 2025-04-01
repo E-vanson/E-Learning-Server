@@ -10,7 +10,7 @@ export interface JobService {
 
     update(userId: string, jobId: string,values: Partial<JobListingUpdateDto>): Promise<void>;
 
-    // findById(id: string): Promise<JobListingDto | undefined>;
+    findById(id: string): Promise<JobListingDto | undefined>;
 
     // findByTitle(title: string): Promise<JobListingDto | undefined>;
 

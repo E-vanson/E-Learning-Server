@@ -2,7 +2,7 @@ import { JobListingCreateDto } from "@/core/models/job-listing-create.dto";
 import { JobListingUpdateDto } from "@/core/models/job-listing-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { JOB_SERVICE, JobService } from "@/core/services/job.service";
-import { Body, Controller, Inject, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobOwnerGuard } from "../guards/job.guard";
 
@@ -43,5 +43,13 @@ export class JobController{
     ) {
         const user = this.security.getAuthenticatedUser();
         return await this.jobService.update(user.id,jobId, values)
+    }
+
+    @Get(':id')
+    @UseGuards(JobOwnerGuard)
+    async getJob(
+        @Param('id') jobId: string
+    ) {
+        return await this.jobService.findById(jobId);
     }
 }

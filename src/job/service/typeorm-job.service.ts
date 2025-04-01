@@ -132,4 +132,10 @@ export class TypeormJobService implements JobService{
 
         return false;
     }
+
+    async findById(id: string): Promise<JobListingDto | undefined> {
+        const entity = await this.jobRepo.findOne({where: { id: id } });
+
+        return entity?.toDto()
+    }
 }

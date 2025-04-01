@@ -20,9 +20,8 @@ export enum ExperienceLevel {
   EXPERIENCED = 'experienced',
 }
 
-export class JobListingDto{
-  @Expose()
-  id: string;
+export class JobListingDto{  
+  id?: string;
 
   @Expose()
   @Type(() => EmployerProfileDto)

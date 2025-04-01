@@ -14,7 +14,7 @@ export interface JobService {
 
     // findByTitle(title: string): Promise<JobListingDto | undefined>;
 
-    // find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>>
+    find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>>
 
     isJobOwner(userId: string,jobId: string): Promise<boolean>;
 }

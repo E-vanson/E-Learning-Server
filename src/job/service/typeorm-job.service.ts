@@ -3,7 +3,9 @@ import { EmployerProfileEntity } from "@/core/entities/employer-profile-entity";
 import { JobListingEntity } from "@/core/entities/job-listing.entity";
 import { UserEntity } from "@/core/entities/user.entity";
 import { AuditEvent } from "@/core/events";
+import { PageDto, QueryDto } from "@/core/models";
 import { JobListingCreateDto } from "@/core/models/job-listing-create.dto";
+import { JobListingQueryDto } from "@/core/models/job-listing-query.dto";
 import { JobListingUpdateDto } from "@/core/models/job-listing-update.dto";
 import { JobListingDto } from "@/core/models/job-listing.dto";
 import { JOB_SERVICE, JobService } from "@/core/services/job.service";
@@ -138,4 +140,95 @@ export class TypeormJobService implements JobService{
 
         return entity?.toDto()
     }
+
+    async find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>> {
+        const { limit, offset } = QueryDto.getPageable(query);
+
+        const queryBuilder = this.jobRepo.createQueryBuilder('job');
+
+        // Apply filters
+        if (query.title) {
+            queryBuilder.andWhere('job.title ILIKE :title', {
+                title: `%${query.title}%`
+            });
+        }
+
+        if (query.skillsRequired) {
+            const skillsArray = Array.isArray(query.skillsRequired) 
+                ? query.skillsRequired 
+                : [query.skillsRequired];
+            
+            // Convert search terms to lowercase
+            const lowerCaseSkills = skillsArray.map(skill => skill.toLowerCase());
+            
+            queryBuilder.andWhere(
+                `EXISTS (
+                    SELECT 1 FROM unnest(job.skillsRequired) AS skill 
+                    WHERE LOWER(skill) = ANY(ARRAY[:...skills]::varchar[])
+                )`, 
+                { skills: lowerCaseSkills }
+            );
+}
+
+
+        if (query.minBudget) {
+            queryBuilder.andWhere('job.budget >= :minBudget', {
+                minBudget: query.minBudget
+            });
+        }
+
+        if (query.maxBudget) {
+            queryBuilder.andWhere('job.budget <= :maxBudget', {
+                maxBudget: query.maxBudget
+            });
+        }
+
+        if (query.budgetType) {
+            queryBuilder.andWhere('job.budgetType = :budgetType', {
+                budgetType: query.budgetType
+            });
+        }
+
+        if (query.status) {
+            queryBuilder.andWhere('job.status = :status', {
+                status: query.status
+            });
+        }
+
+        if (query.experienceLevel) {
+            queryBuilder.andWhere('job.experienceLevel = :experienceLevel', {
+                experienceLevel: query.experienceLevel
+            });
+        }
+
+        if (query.q) {
+            queryBuilder.andWhere(
+                '(LOWER(job.title) LIKE LOWER(:search) OR ' +
+                'LOWER(job.description) LIKE LOWER(:search))',
+                { search: `%${query.q}%` }
+            );
+        }
+
+        // Ordering
+        const orderBy = query.orderBy === 'publishedAt' 
+            ? 'job.publishedAt' 
+            : 'job.createdAt';
+        queryBuilder.orderBy(orderBy, 'DESC');
+
+        // Get total count
+        const totalCount = await queryBuilder.getCount();
+
+        // Apply pagination
+        queryBuilder.skip(offset).take(limit);        
+
+        // Execute query
+        const results = await queryBuilder.getMany();
+
+        return PageDto.from({
+            list: results.map(job => job.toDto()),
+            count: totalCount,
+            offset,
+            limit
+        });
+}
 }

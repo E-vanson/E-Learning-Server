@@ -5,13 +5,17 @@ import { QueryDto } from './query.dto';
 export class JobListingQueryDto extends QueryDto {
   q?: string;
 
+  @IsString()
+  @IsOptional()
+  title?: string;
+
   @IsOptional()
   @IsString({ each: true })
   skillsRequired?: string[];
 
   @IsOptional()
   @IsNumber()
-  minBudget?: number;
+  minBudget?: number; 
 
   @IsOptional()
   @IsNumber()

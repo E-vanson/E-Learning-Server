@@ -25,7 +25,7 @@ import { EmployerModule } from './employer/employer.module';
 import { FreelancerModule } from './freelancer/freelancer.module';
 import { JobModule } from './job/job.module';
 import { ProposalModule } from './proposal/proposal.module';
-import { ProposalReviewModule } from './proposal-review/proposal-review.module';
+import { ContractModule } from './contract/contract.module';
 
 
 function logger(req: Request, res: Response, next: NextFunction) {
@@ -70,7 +70,7 @@ function logger(req: Request, res: Response, next: NextFunction) {
     FreelancerModule,
     JobModule,
     ProposalModule,
-    ProposalReviewModule
+    ContractModule    
   ],
   providers: [
     {

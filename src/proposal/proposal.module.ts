@@ -8,6 +8,7 @@ import { ProposalController } from './controllers/proposal.controller';
 import { JOB_PROPOSAL_SERVICE } from '@/core/services/job-proposal.service';
 import { TypeormJobProposalService } from './services/typeorm-job-proposal.service';
 import { UserEntity } from '@/core/entities/user.entity';
+import { EmployerProfileEntity } from '@/core/entities/employer-profile-entity';
 
 @Module({
     imports: [
@@ -15,7 +16,8 @@ import { UserEntity } from '@/core/entities/user.entity';
             JobProposalEntity,
             FreelancerProfileEntity,
             JobListingEntity,
-            UserEntity
+            UserEntity,
+            EmployerProfileEntity
         ]),
         EventEmitterModule.forRoot()
     ],

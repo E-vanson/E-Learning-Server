@@ -2,13 +2,15 @@ import { CreateJobProposalDto } from "@/core/models/job-proposal-create.dto";
 import { UpdateJobProposalDto } from "@/core/models/job-proposal-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { JOB_PROPOSAL_SERVICE, ProposalService } from "@/core/services/job-proposal.service";
-import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ProposalOwnerGuard } from "../guards/proposal-owner.guard";
 import { ApiOkResponsePaginated } from "@/common/decorators";
 import { JobProposalDto } from "@/core/models/job-proposal.dto";
 import { JobProposalQueryDto } from "@/core/models/job-proposal-query.dto";
 import { ProposalQueryTransformPipe } from "../pipes/proposal-query.pipe";
+import { JobProposalReviewDto } from "@/core/models/job-proposal-review.dto";
+import { ProposalJobOwnerGuard } from "../guards/proposal-job-owner.guard";
 
 
 @ApiTags('Job-Proposal')
@@ -72,5 +74,15 @@ export class ProposalController{
     @Delete(':id')
     async delete(@Param('id') id: string) {
         await this.proposalSerive.delete(id);
+    }
+
+    @Patch(':id')    
+    @UseGuards(ProposalJobOwnerGuard)    
+    async reviewProposal(
+        @Param('id') proposalId: string,
+        @Body() values: JobProposalReviewDto,
+    ) {
+        const user =  this.security.getAuthenticatedUser();
+        await this.proposalSerive.reviewProposal(user.id, proposalId, values)
     }
 }

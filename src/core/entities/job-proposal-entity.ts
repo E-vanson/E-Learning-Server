@@ -51,6 +51,15 @@ export class JobProposalEntity extends AuditingEntity {
   })
   status: ProposalStatus;
 
+  @Column({ type: 'text', nullable: true })
+  employerFeedback: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  reviewedAt: Date;
+
+  @Column({ name: 'reviewed_by', type: 'varchar', nullable: true })
+  reviewedBy?: string 
+
   @CreateDateColumn({
     name: 'published_at',
     type: 'timestamptz',
@@ -72,6 +81,8 @@ export class JobProposalEntity extends AuditingEntity {
             bid_amount: this.bid_amount,
             estimated_time: this.estimated_time,
             status: this.status,
+            employerFeedback: this.employerFeedback,
+            reviewedAt: this.reviewedAt?.toISOString(),
             audit: this.toAudit(),
             publishedAt: this.publishedAt?.toISOString(),
             publishedBy: this.publishedBy

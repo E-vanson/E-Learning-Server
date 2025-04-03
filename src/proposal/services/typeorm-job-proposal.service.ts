@@ -1,4 +1,5 @@
 import { DomainError } from "@/common/errors";
+import { EmployerProfileEntity } from "@/core/entities/employer-profile-entity";
 import { FreelancerProfileEntity } from "@/core/entities/freelancer-profile-entity";
 import { JobListingEntity } from "@/core/entities/job-listing.entity";
 import { JobProposalEntity } from "@/core/entities/job-proposal-entity";
@@ -8,6 +9,7 @@ import { PageDto, QueryDto } from "@/core/models";
 import { FreelancerProfileDto } from "@/core/models/freelancer-profile.dto";
 import { CreateJobProposalDto } from "@/core/models/job-proposal-create.dto";
 import { JobProposalQueryDto } from "@/core/models/job-proposal-query.dto";
+import { JobProposalReviewDto } from "@/core/models/job-proposal-review.dto";
 import { UpdateJobProposalDto } from "@/core/models/job-proposal-update.dto";
 import { JobProposalDto } from "@/core/models/job-proposal.dto";
 import { ProposalService } from "@/core/services/job-proposal.service";
@@ -31,7 +33,9 @@ export class TypeormJobProposalService implements ProposalService{
         @InjectRepository(JobListingEntity)
         private jobRepo: Repository<JobListingEntity>,
         @InjectRepository(UserEntity)
-        private userRepo: Repository<UserEntity>
+        private userRepo: Repository<UserEntity>,
+        @InjectRepository(EmployerProfileEntity)
+        private employerRepo: Repository<EmployerProfileEntity>
     ){}
 
 
@@ -79,7 +83,7 @@ export class TypeormJobProposalService implements ProposalService{
         const entity = await this.proposalRepo.findOne({ where: { id: proposalId } });
 
         if (!entity) {
-            throw new DomainError("Job Profile Not Found!!");
+            throw new DomainError("Proposal Not Found!!");
         }                
 
         const dbUpdatedAt = new Date(entity.updatedAt).getTime();
@@ -247,5 +251,88 @@ export class TypeormJobProposalService implements ProposalService{
             }            
     
             return false;
+    }
+
+    async reviewProposal(userId: string, proposalId: string, values: JobProposalReviewDto): Promise<void> {
+        //check if user is an employer
+        const employer = await this.employerRepo.findOne({
+            where: { userId: userId }        
+        });
+
+        if (!employer) {
+            throw new DomainError('Employer profile not found');
+        }
+
+        // proposal exists?
+          const proposal = await this.proposalRepo.findOne({
+            where: { id: proposalId }        
+        });
+
+        if (!proposal) {
+            throw new DomainError('Proposal not found');
+        }
+
+        const job = await this.jobRepo.findOne({
+            where: {id: proposal.job_id}
+        })
+
+        if (job?.employerId !== employer.id) {
+            throw new DomainError("You can not review this proposal!! You're not the onwer of the job")
+        }
+
+        values.reviewedAt = Date.now().toString();
+
+        await this.dataSource.transaction(async (em) => {        
+            await em.update(JobProposalEntity, proposalId, {
+                status: values.status,
+                employerFeedback: values.employerFeedback,
+                reviewedAt: values.reviewedAt,
+                reviewedBy: employer.id                          
+            });
+            
+        });
+
+        this.eventEmitter.emit(
+            'audit.updated',
+            new AuditEvent({
+                resourceId: `${proposalId}`,
+                resourceType: 'job_proposal_review',
+                context: JSON.stringify({ 
+                    status: values.status,
+                    employerFeedback: values.employerFeedback,
+                    updatedBy: values.reviewedAt 
+                }),
+            }),
+        );
+        
+    }
+
+    async isProposalJobOwner(userId: string, proposalId: string): Promise<boolean> {
+        const employer = await this.employerRepo.findOne({
+            where: { userId: userId }        
+        });
+
+        if (!employer) {
+            return false            
+        }
+
+        // proposal exists?
+        const proposal = await this.proposalRepo.findOne({
+            where: { id: proposalId }        
+        });
+
+        if (!proposal) {
+            return false
+        }
+
+        const job = await this.jobRepo.findOne({
+            where: {id: proposal.job_id}
+        })
+
+        if (job?.employerId !== employer.id) {
+            return false
+        }
+
+        return true;
     }
 }

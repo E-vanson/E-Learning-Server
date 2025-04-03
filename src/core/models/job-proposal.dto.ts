@@ -7,7 +7,8 @@ export enum ProposalStatus {
   SUBMITTED = 'submitted',
   REVIEWED = 'reviewed',
   ACCEPTED = 'accepted',
-  REJECTED = 'rejected'
+  REJECTED = 'rejected',
+  SHORTLISTED = 'shortlisted',
 }
 export class JobProposalDto{    
     id?: string;
@@ -23,6 +24,9 @@ export class JobProposalDto{
     bid_amount: number;
     estimated_time: string;
     status: ProposalStatus;
+    employerFeedback: string;
+    reviewedAt?: string;
+    reviewedBy?: string;
     publishedAt?: string;
     publishedBy?: string;
     audit?: AuditingDto; 

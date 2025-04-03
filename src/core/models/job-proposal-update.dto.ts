@@ -16,10 +16,6 @@ export class UpdateJobProposalDto{
   @ApiProperty({ required: false })
   @IsOptional()
   estimated_time?: string;
-
-  @ApiProperty({ required: false, enum: ProposalStatus })
-  @IsOptional()
-  status?: ProposalStatus;
     
   @IsDateString()
   updatedAt: string;

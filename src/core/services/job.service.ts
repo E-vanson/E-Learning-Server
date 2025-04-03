@@ -5,7 +5,7 @@ import { JobListingUpdateDto } from "../models/job-listing-update.dto"
 import { JobListingDto } from "../models/job-listing.dto"
 
 
-export interface JobService {
+export interface JobService {    
     create(userId: string, values: JobListingCreateDto): Promise<JobListingDto>;
 
     update(userId: string, jobId: string,values: Partial<JobListingUpdateDto>): Promise<void>;

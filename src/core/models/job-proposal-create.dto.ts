@@ -1,13 +1,18 @@
 import { isNotEmpty, IsNotEmpty } from "class-validator";
 import { JobListingDto } from "./job-listing.dto";
 import { FreelancerProfileDto } from "./freelancer-profile.dto";
+import { ProposalStatus } from "./job-proposal.dto";
 
 
 export class CreateJobProposalDto{
-    @IsNotEmpty()
-    job: JobListingDto;
+    
+    job?: JobListingDto;
 
-    freelancer: FreelancerProfileDto;
+    jobId?: string;
+
+    freelancer?: FreelancerProfileDto;
+
+    freelancer_Id: string;
 
     @IsNotEmpty()
     cover_letter: string;
@@ -17,6 +22,8 @@ export class CreateJobProposalDto{
 
     @IsNotEmpty()
     estimated_time: string;
+
+    status?: ProposalStatus;
 
     
 

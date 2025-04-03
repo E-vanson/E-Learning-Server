@@ -39,14 +39,14 @@ export class JobListingEntity extends AuditingEntity {
   skillsRequired: string[];
 
   @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
-  budget?: number | null;
+  budget?: number;
 
   @Column({ 
     type: 'enum',
     enum: BudgetType,    
     default: BudgetType.FIXED
   })
-  budgetType: BudgetType | null;
+  budgetType: BudgetType;
 
   @Column({ type: 'timestamp' })
   deadline: Date;
@@ -70,7 +70,7 @@ export class JobListingEntity extends AuditingEntity {
       type: 'timestamptz',
       nullable: true,
    })
-  publishedAt?: Date | null;
+  publishedAt?: Date;
   
   @Column({ name: 'published_by', type: 'varchar', nullable: true })
   publishedBy?: string                          ;  
@@ -79,6 +79,7 @@ export class JobListingEntity extends AuditingEntity {
         return new JobListingDto({
             id: this.id,
             employer: this.employer,
+            employerId: this.employerId,
             title: this.title,
             slug: this.slug,
             description: this.description,

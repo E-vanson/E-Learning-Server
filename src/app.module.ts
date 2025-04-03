@@ -24,6 +24,7 @@ import { join } from 'path';
 import { EmployerModule } from './employer/employer.module';
 import { FreelancerModule } from './freelancer/freelancer.module';
 import { JobModule } from './job/job.module';
+import { ProposalModule } from './proposal/proposal.module';
 
 
 function logger(req: Request, res: Response, next: NextFunction) {
@@ -66,7 +67,8 @@ function logger(req: Request, res: Response, next: NextFunction) {
     }),
     EmployerModule,
     FreelancerModule,
-    JobModule
+    JobModule,
+    ProposalModule
   ],
   providers: [
     {

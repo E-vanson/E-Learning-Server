@@ -27,10 +27,9 @@ export class TypeormJobService implements JobService{
         private userRepo: Repository<UserEntity>,    
         // @Inject(JOB_SERVICE)
         // private jobService: JobService
-    ) { }
+    ) {}
     
-    async create(userId: string, values: JobListingCreateDto): Promise<JobListingDto>{
-        console.log("inside the service", userId);
+    async create(userId: string, values: JobListingCreateDto): Promise<JobListingDto>{        
         const existingProfile = await this.employerRepo.findOne({
              where: {userId: userId } 
         })

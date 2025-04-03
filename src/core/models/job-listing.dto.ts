@@ -27,6 +27,8 @@ export class JobListingDto{
   @Type(() => EmployerProfileDto)
   employer: EmployerProfileDto;
 
+  employerId?: string;
+
   @Expose()
   title: string;
 
@@ -39,16 +41,16 @@ export class JobListingDto{
   skillsRequired: string[];
 
   @Expose()
-  budget: number | null;
+  budget: number ;
 
   @Expose()
-  budgetType: BudgetType | null;
+  budgetType: BudgetType;
 
   @Expose()
   deadline: Date;
 
   @Expose()
-  experienceLevel: ExperienceLevel | null;
+  experienceLevel: ExperienceLevel;
     
   publishedAt?: string;
     

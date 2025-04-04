@@ -48,6 +48,16 @@ export class ContractDto {
     @Type(() => FreelancerProfileDto)
     freelancer: FreelancerProfileDto;
 
+    @IsUUID()
+    jobId: string;
+
+    @IsUUID()
+    freelancerId: string;
+            
+    @IsUUID()
+    employerId: string;  
+
+
     @Expose()
     @IsNotEmpty()
     terms: ContractTerms;

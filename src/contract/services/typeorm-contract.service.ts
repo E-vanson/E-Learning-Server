@@ -64,9 +64,9 @@ export class TypeormContractService implements ContractService{
             payment_amount: values.paymentAmount,
             payment_currency: values.paymentCurrency,
             milestones: values.milestones,            
-        })
+        })        
 
-        const contractId = new newContract.identifiers[0].id;
+        const contractId = newContract.identifiers[0].id;
 
         if (!contractId) throw new DomainError("Contract Id not found")
         
@@ -141,7 +141,11 @@ export class TypeormContractService implements ContractService{
     }
 
     async findById(id: string): Promise<ContractDto | undefined> {
-        const entity = await this.contractRepo.findOneBy({ id: id });
+        const entity = await this.contractRepo.findOne({
+            where: { id },
+            relations: ['job', 'freelancer', 'employer'], // Include the job relation
+            select: ['id', 'job', 'freelancer', 'employer', 'startDate', 'endDate', 'terms', 'status', /* other fields */]
+        });        
         
         return entity?.toDto(); 
     }
@@ -157,7 +161,7 @@ export class TypeormContractService implements ContractService{
     if (query.q) {
         queryBuilder.andWhere(
             `(contract.terms::text ILIKE :search OR 
-             freelancer.username ILIKE :search OR 
+             job.title ILIKE :search OR 
              employer.companyName ILIKE :search)`,
             { search: `%${query.q}%` }
         );
@@ -231,7 +235,7 @@ export class TypeormContractService implements ContractService{
 
         if (!employer) throw new DomainError("Employer Profile Not Found");
 
-        const contract = await this.findById(contractId);
+        const contract = await this.findById(contractId);        
 
         if (contract?.employer.id === employer.id) {
             return true;

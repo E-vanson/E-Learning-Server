@@ -7,6 +7,10 @@ export class CreateContractDto {
 
   @IsUUID()
   freelancerId: string;
+    
+  
+  @IsUUID()
+  employerId: string;  
 
   @IsNotEmpty()
   terms: ContractTerms;

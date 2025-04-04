@@ -23,17 +23,9 @@ export class JobContractEntity extends AuditingEntity {
   employer: EmployerProfileEntity;  
 
   @Column({
-    type: 'jsonb',
-    default: {},
-    transformer: {
-      to(value: ContractTerms): string {
-        return JSON.stringify(value);
-      },
-      from(value: string): ContractTerms {
-        return JSON.parse(value);
-      }
-    }
-  })
+  type: 'jsonb',
+  default: {},  
+})
   terms: ContractTerms;
 
   @Column({
@@ -61,8 +53,8 @@ export class JobContractEntity extends AuditingEntity {
     toDto(){
         return new ContractDto({
             id: this.id,
-            employer: this.employer.toDto(),            
-            job: this.job.toDto(),            
+            employer: this.employer,            
+            job: this.job?.toDto(),            
             freelancer: this.freelancer,            
             terms: this.terms,
             startDate: this.startDate,

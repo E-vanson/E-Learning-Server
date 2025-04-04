@@ -19,6 +19,7 @@ import { TypeormFreelancerService } from './services/typeorm-freelancer.service'
             provide: FREELANCER_PROFILE_SERVICE,
             useClass: TypeormFreelancerService
         }
-    ]
+    ],
+    exports: [FREELANCER_PROFILE_SERVICE]
 })
 export class FreelancerModule {}

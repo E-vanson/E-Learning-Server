@@ -12,26 +12,28 @@ export class JobContractEntity extends AuditingEntity {
 
   @ManyToOne(() => JobListingEntity)
   @JoinColumn({ name: 'job_id' })
-  job: JobListingEntity;
-    
-  @Column({ type: 'uuid', length: 2000 })
-  job_Id: string  
+  job: JobListingEntity;      
 
   @ManyToOne(() => FreelancerProfileEntity)
   @JoinColumn({ name: 'freelancer_id' })
-  freelancer: FreelancerProfileEntity;
-    
-  @Column({ type: 'uuid', length: 2000 })
-  freelancer_Id: string  
+  freelancer: FreelancerProfileEntity;  
 
   @ManyToOne(() => EmployerProfileEntity)
   @JoinColumn({ name: 'employer_id' })
-  employer: EmployerProfileEntity;
-    
-  @Column({ type: 'uuid', length: 2000 })
-  employer_Id: string  
+  employer: EmployerProfileEntity;  
 
-  @Column({ type: 'jsonb' })
+  @Column({
+    type: 'jsonb',
+    default: {},
+    transformer: {
+      to(value: ContractTerms): string {
+        return JSON.stringify(value);
+      },
+      from(value: string): ContractTerms {
+        return JSON.parse(value);
+      }
+    }
+  })
   terms: ContractTerms;
 
   @Column({
@@ -48,10 +50,10 @@ export class JobContractEntity extends AuditingEntity {
   endDate: Date;
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
-  paymentAmount: number;
+  payment_amount: number;
 
   @Column({ type: 'enum',enum: Currency, default: Currency.DOLLAR})
-  paymentCurrency: Currency;
+  payment_currency: Currency;
 
   @Column({ type: 'jsonb', nullable: true })
   milestones: Milestone[];
@@ -59,17 +61,14 @@ export class JobContractEntity extends AuditingEntity {
     toDto(){
         return new ContractDto({
             id: this.id,
-            employer: this.employer.toDto(),
-            employerId: this.employer_Id,
-            job: this.job.toDto(),
-            jobId: this.job_Id,
-            freelancer: this.freelancer,
-            freelancerId: this.freelancer_Id,
+            employer: this.employer.toDto(),            
+            job: this.job.toDto(),            
+            freelancer: this.freelancer,            
             terms: this.terms,
             startDate: this.startDate,
             endDate: this.endDate,
-            paymentAmount: this.paymentAmount,
-            paymentCurrency: this.paymentCurrency,
+            paymentAmount: this.payment_amount,
+            paymentCurrency: this.payment_currency,
             milestones: this.milestones,
             status: this.status
         })

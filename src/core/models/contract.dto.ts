@@ -38,37 +38,33 @@ export class ContractDto {
     
     @Expose()
     @Type(() => EmployerProfileDto)
-    employer: EmployerProfileDto;
-
-    @IsUUID()
-    employerId: string;
+    employer: EmployerProfileDto;    
 
     @Expose()
     @Type(() => JobListingDto)
-    job: JobListingDto;
-    
-    @IsUUID()
-    jobId: string;
+    job: JobListingDto; 
 
     @Expose()
     @Type(() => FreelancerProfileDto)
     freelancer: FreelancerProfileDto;
 
-    @IsUUID()
-    freelancerId: string;
-
+    @Expose()
     @IsNotEmpty()
     terms: ContractTerms;
 
+    @Expose()
     @IsISO8601()
     startDate: Date;
 
+    @Expose()
     @IsISO8601()
     endDate: Date;
 
+    @Expose()    
     @IsPositive()
     paymentAmount: number;
 
+    @Expose()
     @IsNotEmpty()
     paymentCurrency: Currency;
 

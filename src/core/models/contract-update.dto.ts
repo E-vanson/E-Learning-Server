@@ -5,8 +5,8 @@ import { ContractStatus } from './contract.dto';
 import { ApiHideProperty } from '@nestjs/swagger';
 
 export class UpdateContractDto extends PartialType(CreateContractDto) {
-  @IsEnum(ContractStatus)
-  status?: ContractStatus;
+    @IsEnum(ContractStatus)
+    status?: ContractStatus;
     
     @IsDateString()
     updatedAt: string;

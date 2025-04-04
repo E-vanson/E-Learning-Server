@@ -10,7 +10,7 @@ import {
   Check,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
-import { JobContractEntity } from './job-contract-entity';
+import { JobContractEntity } from './contract.entity';
 
 @Entity('reviews')
 export class ReviewEntity {

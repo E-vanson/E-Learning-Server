@@ -192,6 +192,12 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         return entity?.toDto();        
     }
 
+    async findByUserId(userId: string): Promise<EmployerProfileDto | undefined> {
+        const entity = await this.employerProfileRepo.findOneByOrFail({ userId: userId });
+        
+        return entity?.toDto();  
+    }
+
    
 }
 

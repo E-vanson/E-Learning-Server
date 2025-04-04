@@ -21,6 +21,7 @@ import { UserModule } from '@/user/user.module';
             provide: EMPLOYER_PROFILE_SERVICE,
             useClass: TypeormEmployerProfileService
         }
-    ]
+    ],
+    exports: [EMPLOYER_PROFILE_SERVICE]
 })
 export class EmployerModule {}

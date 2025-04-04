@@ -12,6 +12,8 @@ export interface EmployerProfileService{
     
     findById(id: string): Promise<EmployerProfileDto | undefined>;
 
+    findByUserId(userId: string): Promise<EmployerProfileDto | undefined>;
+
     findByCompanyName(companyName: string): Promise<EmployerProfileDto | undefined>;
 
     find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>>;        

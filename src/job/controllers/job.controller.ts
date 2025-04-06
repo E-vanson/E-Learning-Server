@@ -14,7 +14,7 @@ import { JobQueryTransformPipe } from "../pipes/job-query.pipe";
 
 @ApiTags('Job')
 @ApiBearerAuth()
-@Controller('job')  
+@Controller('/content/jobs')  
 export class JobController{
     constructor(
         private security: SecurityContextService,
@@ -22,40 +22,40 @@ export class JobController{
         private jobService: JobService
     ) { }
     
-    @Post()
-    @ApiOperation({ summary: 'Create a job' })
-    @ApiBody({ type: JobListingCreateDto })    
-    @ApiResponse({ 
-        status: 201, 
-        description: 'Job created successfully' 
-    })
-    @ApiResponse({ 
-        status: 401, 
-        description: 'Unauthorized' 
-    })    
-    async create(@Body() values: JobListingCreateDto) {        
-        console.log("inside the controller");
-        const user = this.security.getAuthenticatedUser();        
-        await this.jobService.create(user.id, values)
-    }
+    // @Post()
+    // @ApiOperation({ summary: 'Create a job' })
+    // @ApiBody({ type: JobListingCreateDto })    
+    // @ApiResponse({ 
+    //     status: 201, 
+    //     description: 'Job created successfully' 
+    // })
+    // @ApiResponse({ 
+    //     status: 401, 
+    //     description: 'Unauthorized' 
+    // })    
+    // async create(@Body() values: JobListingCreateDto) {        
+    //     console.log("inside the controller");
+    //     const user = this.security.getAuthenticatedUser();        
+    //     await this.jobService.create(user.id, values)
+    // }
 
-    @Put(':id')
-    @UseGuards(JobOwnerGuard)
-    async updateJob(
-        @Param('id') jobId: string,
-        @Body() values:Partial<JobListingUpdateDto>,
-    ) {
-        const user = this.security.getAuthenticatedUser();
-        return await this.jobService.update(user.id,jobId, values)
-    }
+    // @Put(':id')
+    // @UseGuards(JobOwnerGuard)
+    // async updateJob(
+    //     @Param('id') jobId: string,
+    //     @Body() values:Partial<JobListingUpdateDto>,
+    // ) {
+    //     const user = this.security.getAuthenticatedUser();
+    //     return await this.jobService.update(user.id,jobId, values)
+    // }
 
-    @Get(':id')
-    @UseGuards(JobOwnerGuard)
-    async getJob(
-        @Param('id') jobId: string
-    ) {
-        return await this.jobService.findById(jobId);
-    }
+    // @Get(':id')
+    // @UseGuards(JobOwnerGuard)
+    // async getJob(
+    //     @Param('id') jobId: string
+    // ) {
+    //     return await this.jobService.findById(jobId);
+    // }
 
     @ApiOkResponsePaginated(JobListingDto)
     @Get()
@@ -63,9 +63,9 @@ export class JobController{
         return await this.jobService.find(query);
     }
 
-    @UseGuards(JobOwnerGuard)
-    @Delete(':id')
-    async delete(@Param('id') id: string) {
-        await this.jobService.delete(id);
-    }
+    // @UseGuards(JobOwnerGuard)
+    // @Delete(':id')
+    // async delete(@Param('id') id: string) {
+    //     await this.jobService.delete(id);
+    // }
 }

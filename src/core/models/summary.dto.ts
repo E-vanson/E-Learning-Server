@@ -1,6 +1,7 @@
 export class SummaryDto {
   courseCount: number;
   postCount: number;
+  jobCount: number;
   subscriberCount: number;
   userCount: number;
   enrolledByLevel: { [key: string]: number };

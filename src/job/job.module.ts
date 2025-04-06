@@ -7,6 +7,7 @@ import { JobController } from './controllers/job.controller';
 import { JOB_SERVICE } from '@/core/services/job.service';
 import { TypeormJobService } from './service/typeorm-job.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { JobAdminController } from './controllers/job-admin.controller';
 
 @Module({
     imports: [
@@ -18,7 +19,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         EventEmitterModule.forRoot(),
     ],
     
-    controllers: [JobController],
+    controllers: [JobController, JobAdminController],
     providers: [
         {
             provide: JOB_SERVICE,

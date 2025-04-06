@@ -1,5 +1,6 @@
 import { CourseEntity } from '@/core/entities/course.entity';
 import { EnrolledCourseEntity } from '@/core/entities/enrolled-course.entity';
+import { JobListingEntity } from '@/core/entities/job-listing.entity';
 import { PostEntity } from '@/core/entities/post.entity';
 import { UserEntity } from '@/core/entities/user.entity';
 import { MonthlyEnrollmentDto, SummaryDto } from '@/core/models';
@@ -19,12 +20,15 @@ export class TypeormDashboardService implements DashboardService {
     private userRepo: Repository<UserEntity>,
     @InjectRepository(EnrolledCourseEntity)
     private enrolledCourseRepo: Repository<EnrolledCourseEntity>,
+    @InjectRepository(JobListingEntity)
+    private jobRepo: Repository<JobListingEntity>
   ) {}
 
   async getSummary(): Promise<SummaryDto> {
     const courseCount = await this.courseRepo.count();
     const postCount = await this.postRepo.count();
     const userCount = await this.userRepo.count();
+    const jobCount = await this.jobRepo.count();
 
     const enrolledByLevelList = await this.courseRepo
       .createQueryBuilder('course')
@@ -45,6 +49,7 @@ export class TypeormDashboardService implements DashboardService {
     return new SummaryDto({
       courseCount: courseCount,
       postCount: postCount,
+      jobCount: jobCount,
       userCount: userCount,
       subscriberCount: 0,
       enrolledByLevel: {

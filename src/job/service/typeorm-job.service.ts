@@ -29,46 +29,48 @@ export class TypeormJobService implements JobService{
         // private jobService: JobService
     ) {}
     
-    async create(userId: string, values: JobListingCreateDto): Promise<JobListingDto>{        
-        const existingProfile = await this.employerRepo.findOne({
-             where: {userId: userId } 
-        })
-        console.log("the existing profile: ", existingProfile);
+        async create(userId: string, values: JobListingCreateDto): Promise<string>{        
+            const existingProfile = await this.employerRepo.findOne({
+                where: {userId: userId } 
+            })
+            console.log("the existing profile: ", existingProfile);
 
-        const user = await this.userRepo.findOne({ where: { id: userId } });
-        if (!user) throw new DomainError("Please Create An Account First!!")
-        console.log("the existing user: ", user);
+            const user = await this.userRepo.findOne({ where: { id: userId } });
+            if (!user) throw new DomainError("Please Create An Account First!!")
+            console.log("the existing user: ", user);
 
-        if (!existingProfile) {
-            throw new DomainError("Create An Employer Profile To Post Job")
+            if (!existingProfile) {
+                throw new DomainError("Create An Employer Profile To Post Job")
+            }
+
+            values.employerId = existingProfile.id;
+
+            const newJob = await this.jobRepo.insert({
+                title: values.title,
+                employer: existingProfile,
+                employerId: existingProfile.id,
+                description: values.description,
+                slug: values.slug,
+                skillsRequired: values.skillsRequired,
+                budget: values.budget,
+                budgetType: values.budgetType,
+                deadline: values.deadline,
+                experienceLevel: values.experienceLevel,
+                status: values.status
+            })
+
+            console.log("the skills required: ", values.skillsRequired, values);
+            console.log("the new job: ", newJob.identifiers?.[0]?.id);
+
+            if (!newJob.identifiers?.[0]?.id) {
+                console.error("Invalid identifiers format:", newJob.identifiers);
+                throw new DomainError("Job ID not generated properly");
+            }
+            const jobId = newJob.identifiers[0].id;
+            console.log("Extracted Job ID:", jobId);
+            
+            return jobId;
         }
-
-        values.employerId = existingProfile.id;
-
-        const newJob = await this.jobRepo.insert({
-            title: values.title,
-            employer: existingProfile,
-            employerId: existingProfile.id,
-            description: values.description,
-            slug: values.slug,
-            skillsRequired: values.skillsRequired,
-            budget: values.budget,
-            budgetType: values.budgetType,
-            deadline: values.deadline,
-            experienceLevel: values.experienceLevel,
-            status: values.status
-        })
-
-        console.log("the skills required: ", values.skillsRequired, values);
-        console.log("the new job: ", newJob);
-
-        const jobId = newJob.identifiers[0].id;
-        if (!jobId) throw new DomainError("Employer Profile Doesn't exist");
-
-        const job = await this.jobRepo.findOneByOrFail({ id: jobId });
-
-        return job.toDto();
-    }
 
     async update(userId: string, jobId: string, values: JobListingUpdateDto): Promise<void>{
         const entity = await this.jobRepo.findOne({
@@ -140,95 +142,117 @@ export class TypeormJobService implements JobService{
         return entity?.toDto()
     }
 
-    async find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>> {
+   async find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>> {
         const { limit, offset } = QueryDto.getPageable(query);
+       
+    // Count query (no relations needed)
+        const dataQuery = this.jobRepo.createQueryBuilder('job')
+            .leftJoinAndSelect('job.employer', 'employer');
 
-        const queryBuilder = this.jobRepo.createQueryBuilder('job');
+        // Count query (no relations needed)
+        const countQuery = this.jobRepo.createQueryBuilder('job');
 
-        // Apply filters
-        if (query.title) {
-            queryBuilder.andWhere('job.title ILIKE :title', {
-                title: `%${query.title}%`
-            });
-        }
+        // ID query for pagination
+        const idQuery = this.jobRepo.createQueryBuilder('job');
 
-        if (query.skillsRequired) {
-            const skillsArray = Array.isArray(query.skillsRequired)
-                ? query.skillsRequired
-                : [query.skillsRequired];
-                        
-            const lowerCaseSkills = skillsArray.map(skill => skill.toLowerCase());
-            
-            queryBuilder.andWhere(
-                `EXISTS (
-                    SELECT 1 FROM unnest(job.skillsRequired) AS skill 
-                    WHERE LOWER(skill) = ANY(ARRAY[:...skills]::varchar[])
-                )`,
-                { skills: lowerCaseSkills }
-            );
-        }    
+        // Apply filters to all queries
+        [dataQuery, countQuery, idQuery].forEach(qb => {
+            if (query.title) {
+                qb.andWhere('job.title ILIKE :title', { title: `%${query.title}%` });
+            }
 
-        if (query.minBudget) {
-            queryBuilder.andWhere('job.budget >= :minBudget', {
+            if (query.skillsRequired) {
+                const skillsArray = Array.isArray(query.skillsRequired) 
+                    ? query.skillsRequired 
+                    : [query.skillsRequired];
+                const lowerCaseSkills = skillsArray.map(skill => skill.toLowerCase());
+                
+                qb.andWhere(
+                    `EXISTS (
+                        SELECT 1 FROM unnest(job.skills_required) AS skill 
+                        WHERE LOWER(skill) = ANY(ARRAY[:...skills])
+                    )`,
+                    { skills: lowerCaseSkills }
+                );
+            }
+
+            if (query.minBudget) {
+            qb.andWhere('job.budget >= :minBudget', {
                 minBudget: query.minBudget
             });
+            }
+
+            if (query.maxBudget) {
+                qb.andWhere('job.budget <= :maxBudget', {
+                    maxBudget: query.maxBudget
+                });
+            }
+
+            if (query.budgetType) {
+                qb.andWhere('job.budgetType = :budgetType', {
+                    budgetType: query.budgetType
+                });
+            }
+
+            if (query.status) {
+                qb.andWhere('job.status = :status', {
+                    status: query.status
+                });
+            }
+
+            if (query.experienceLevel) {
+                qb.andWhere('job.experienceLevel = :experienceLevel', {
+                    experienceLevel: query.experienceLevel
+                });
+            }
+
+            if (query.q) {
+                qb.andWhere(
+                    '(LOWER(job.title) LIKE LOWER(:search) OR ' +
+                    'LOWER(job.description) LIKE LOWER(:search))',
+                    { search: `%${query.q}%` }
+                );
+            }
+
+
+            // Apply remaining filters...
+        });
+
+        
+        const orderByColumn = query.orderBy === 'publishedAt' 
+        ? 'job.published_at'  // Database column name
+        : 'job.created_at';   // Database column name
+
+    // Configure ID query
+        idQuery
+            .select(['job.id'])
+            .orderBy(orderByColumn, 'DESC')
+            .skip(offset)
+            .take(limit);
+
+        // Execute queries
+        const [totalCount, idList] = await Promise.all([
+            countQuery.getCount(),
+            idQuery.getMany()
+        ]);
+
+        // Get full entities
+        let list: JobListingEntity[] = [];
+        if (idList.length > 0) {
+            list = await dataQuery
+                .andWhereInIds(idList.map(job => job.id))
+                .orderBy(orderByColumn, 'DESC')
+                .getMany();
         }
-
-        if (query.maxBudget) {
-            queryBuilder.andWhere('job.budget <= :maxBudget', {
-                maxBudget: query.maxBudget
-            });
-        }
-
-        if (query.budgetType) {
-            queryBuilder.andWhere('job.budgetType = :budgetType', {
-                budgetType: query.budgetType
-            });
-        }
-
-        if (query.status) {
-            queryBuilder.andWhere('job.status = :status', {
-                status: query.status
-            });
-        }
-
-        if (query.experienceLevel) {
-            queryBuilder.andWhere('job.experienceLevel = :experienceLevel', {
-                experienceLevel: query.experienceLevel
-            });
-        }
-
-        if (query.q) {
-            queryBuilder.andWhere(
-                '(LOWER(job.title) LIKE LOWER(:search) OR ' +
-                'LOWER(job.description) LIKE LOWER(:search))',
-                { search: `%${query.q}%` }
-            );
-        }
-
-        // Ordering
-        const orderBy = query.orderBy === 'publishedAt' 
-            ? 'job.publishedAt' 
-            : 'job.createdAt';
-        queryBuilder.orderBy(orderBy, 'DESC');
-
-        // Get total count
-        const totalCount = await queryBuilder.getCount();
-
-        // Apply pagination
-        queryBuilder.skip(offset).take(limit);        
-
-        // Execute query
-        const results = await queryBuilder.getMany();
 
         return PageDto.from({
-            list: results.map(job => job.toDto()),
+            list: list.map(job => job.toDto()),
             count: totalCount,
             offset,
             limit
         });
-    }
-
+   }
+    
     async delete(id: string): Promise<void>{
         const entity = await this.jobRepo.findOneBy({ id: id });
         if (!entity) throw new DomainError("Job Not Found");

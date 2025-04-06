@@ -7,6 +7,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DashboardController } from './dashboard.controller';
 import { TypeormDashboardService } from './typeorm-dashboard.service';
+import { JobListingEntity } from '@/core/entities/job-listing.entity';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TypeormDashboardService } from './typeorm-dashboard.service';
       PostEntity,
       UserEntity,
       EnrolledCourseEntity,
+      JobListingEntity
     ]),
   ],
   controllers: [DashboardController],

@@ -49,8 +49,7 @@ export class PostAdminController {
   ) {}
 
   @Post()
-  async create(@Body(PostCreateTransformPipe) values: PostCreateDto) {
-    console.log("Inside the controller...")
+  async create(@Body(PostCreateTransformPipe) values: PostCreateDto) {    
     return await this.postService.create(values);
   }
 

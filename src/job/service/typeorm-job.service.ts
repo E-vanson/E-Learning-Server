@@ -142,6 +142,12 @@ export class TypeormJobService implements JobService{
         return entity?.toDto()
     }
 
+    async findBySlug(slug: string): Promise<JobListingDto | undefined> {
+        const entity = await this.jobRepo.findOne({where: { slug: slug } });
+
+        return entity?.toDto()
+    }
+
    async find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>> {
         const { limit, offset } = QueryDto.getPageable(query);
        

@@ -2,7 +2,7 @@ import { JobListingCreateDto } from "@/core/models/job-listing-create.dto";
 import { JobListingUpdateDto } from "@/core/models/job-listing-update.dto";
 import { SecurityContextService } from "@/core/security/security-context.service";
 import { JOB_SERVICE, JobService } from "@/core/services/job.service";
-import { Body, Controller, Delete, Get, Inject, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Param, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobOwnerGuard } from "../guards/job.guard";
 import { ApiOkResponsePaginated } from "@/common/decorators";
@@ -49,8 +49,16 @@ export class JobAdminController {
         @Param('id') jobId: string,
         @Body() values: Partial<JobListingUpdateDto>,
     ) {
-        const user = this.security.getAuthenticatedUser();
-        return await this.jobService.update(user.id, jobId, values)
+        try {
+            const user = this.security.getAuthenticatedUser();
+            const updatedJob = await this.jobService.update(user.id, jobId, values);
+            return { success: true, data: updatedJob }; 
+        } catch (error) {
+            throw new HttpException({
+            status: HttpStatus.BAD_REQUEST,
+            error: error.message,
+            }, HttpStatus.BAD_REQUEST);
+  }
     }
 
     @Get(':id')

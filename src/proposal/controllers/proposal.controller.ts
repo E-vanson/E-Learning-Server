@@ -15,7 +15,7 @@ import { ProposalJobOwnerGuard } from "../guards/proposal-job-owner.guard";
 
 @ApiTags('Job-Proposal')
 @ApiBearerAuth()
-@Controller('proposal')
+@Controller('proposals')
 export class ProposalController{
     constructor(
         private security: SecurityContextService,

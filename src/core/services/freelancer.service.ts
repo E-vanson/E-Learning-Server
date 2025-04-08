@@ -11,6 +11,8 @@ export interface FreelancerService{
     
     findById(id: string): Promise<FreelancerProfileDto | undefined>;
 
+    findByUserId(userId: string): Promise<FreelancerProfileDto | undefined>;
+
     findByFreelancerName(freelancerName: string): Promise<FreelancerProfileDto | undefined>;
 
     find(query: FreelancerProfileQueryDto): Promise<PageDto<FreelancerProfileDto>>;        

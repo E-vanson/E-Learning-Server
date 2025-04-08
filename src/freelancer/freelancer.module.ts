@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FreelancerController } from './controllers/freelancer.controller';
 import { FREELANCER_PROFILE_SERVICE } from '@/core/services/freelancer.service';
 import { TypeormFreelancerService } from './services/typeorm-freelancer.service';
+import { UserModule } from '@/user/user.module';
 
 @Module({
     imports: [
@@ -12,6 +13,7 @@ import { TypeormFreelancerService } from './services/typeorm-freelancer.service'
             FreelancerProfileEntity,
             UserEntity
         ]),
+        UserModule
     ],
     controllers: [FreelancerController],
     providers: [

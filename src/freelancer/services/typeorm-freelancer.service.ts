@@ -2,13 +2,14 @@ import { DomainError } from "@/common/errors";
 import { FreelancerProfileEntity } from "@/core/entities/freelancer-profile-entity";
 import { UserEntity } from "@/core/entities/user.entity";
 import { AuditEvent } from "@/core/events";
-import { PageDto, QueryDto, UserDto } from "@/core/models";
+import { PageDto, QueryDto, UserDto, UserJobRole } from "@/core/models";
 import { CreateFreelancerProfileDto } from "@/core/models/freelancer-profile-create.dto";
 import { FreelancerProfileQueryDto } from "@/core/models/freelancer-profile-query.dto";
 import { UpdateFreelancerProfileDto } from "@/core/models/freelancer-profile-update.dto";
 import { FreelancerProfileDto } from "@/core/models/freelancer-profile.dto";
+import { USER_SERVICE, UserService } from "@/core/services";
 import { FreelancerService } from "@/core/services/freelancer.service";
-import { NotFoundException } from "@nestjs/common";
+import { Inject, NotFoundException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
@@ -21,7 +22,9 @@ export class TypeormFreelancerService implements FreelancerService{
         @InjectRepository(FreelancerProfileEntity)
         private freelancerRepo: Repository<FreelancerProfileEntity>,
         @InjectRepository(UserEntity)
-        private userRepo: Repository<UserEntity>
+        private userRepo: Repository<UserEntity>,
+        @Inject(USER_SERVICE)
+        private userService: UserService
     ) { }
     
     async create(userId: string, values: CreateFreelancerProfileDto): Promise<FreelancerProfileDto> {        
@@ -36,7 +39,8 @@ export class TypeormFreelancerService implements FreelancerService{
             if (existingProfile) {
                 throw new DomainError("Freelancer Profile Already Exists");
             }
-    
+            await this.userService.updateJobRole(user.id, UserJobRole.FREELANCER)
+
             values.userId = userId;
     
             const newProfile = await this.freelancerRepo.insert({
@@ -106,6 +110,12 @@ export class TypeormFreelancerService implements FreelancerService{
 
     async findById(id: string): Promise<FreelancerProfileDto | undefined> {
         const entity = await this.freelancerRepo.findOneBy({ id: id });
+        
+        return entity?.toDto();        
+    }
+
+    async findByUserId(userId: string): Promise<FreelancerProfileDto | undefined> {
+        const entity = await this.freelancerRepo.findOneBy({ id: userId });
         
         return entity?.toDto();        
     }

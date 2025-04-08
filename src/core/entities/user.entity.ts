@@ -23,7 +23,7 @@ export class UserEntity extends AuditingEntity {
    @Column({
     type: 'enum',
     enum: UserJobRole,
-    default: UserJobRole.FREELANCER,
+    default: UserJobRole.USER,
   })
   jobRole: UserJobRole;
 

@@ -49,16 +49,15 @@ export class EmployerProfileController{
     ) {
       return await this.employerProfileService.update(profileId, values)
     }
-
-    @SerializeOptions({//determines how the response objec should be serialised
-    groups: ['detail'],
-    })
-    @UseGuards(EmployerProfileOwnerGuard)
-    @Get(':id')
+    
+    
+    // @UseGuards(EmployerProfileOwnerGuard)
+    @Get('profile/:id')
     async getEmployerProfile(
     @Param('id') id: string,
     @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
     ) {
+        console.log("Getting the employer....")
         const result = await this.employerProfileService.findById(id);
         if (!result) {
             resp.status(HttpStatus.NO_CONTENT);

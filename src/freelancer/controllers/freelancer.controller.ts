@@ -88,14 +88,22 @@ export class FreelancerController {
          return result;
      }
 
+    @Get('profile/:userId')
+    async getProfileByUserId( 
+         @Param('userId') userId: string, 
+         @Res({ passthrough: true }) resp: Response,
+     ) {         
+         const result = await this.freelancerService.findByUserId(userId);
+         if (!result) {
+             resp.status(HttpStatus.NO_CONTENT);
+             return undefined;
+         }
+         return result;
+     }
+
     @ApiOkResponsePaginated(FreelancerProfileDto)
     @Get()
     async find(@Query(FreelancerProfileQueryTransformPipe) query: FreelancerProfileQueryDto) {
         return await this.freelancerService.find(query);
-    }
-        
-
-
-
-
+    }        
 }

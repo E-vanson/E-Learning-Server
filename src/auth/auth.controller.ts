@@ -1,7 +1,9 @@
+import { VerifyEmailDto } from '@/core/models';
 import { FirebaseService } from '@/core/security/firebase.service';
 import { USER_SERVICE, UserService } from '@/core/services';
 import {
   BadRequestException,
+  Body,
   Controller,
   Inject,
   Post,
@@ -31,5 +33,15 @@ export class AuthController {
     await this.userService.updateEmailVerified(uid, emailVerified);
 
     return await this.userService.findById(uid);
+  }
+
+   @Post('verifing-email')
+  async verifingEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+  console.log("Verification data:", verifyEmailDto);
+  await this.userService.updateEmailVerified(
+    verifyEmailDto.id, 
+    verifyEmailDto.status
+  );
+  return this.userService.findById(verifyEmailDto.id);
   }
 }

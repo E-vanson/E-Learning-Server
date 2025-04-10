@@ -17,3 +17,8 @@ export class UserUpdateDto {
 
   image?: string;
 }
+
+export class VerifyEmailDto {
+  id: string;
+  status: boolean;
+}

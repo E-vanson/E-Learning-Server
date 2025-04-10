@@ -26,6 +26,7 @@ import {
   Inject,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   Query,
   Req,
@@ -112,4 +113,8 @@ export class UserController {
 
     return result;
   }
+
+ 
+
+
 }

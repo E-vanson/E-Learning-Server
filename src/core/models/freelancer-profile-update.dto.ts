@@ -12,11 +12,7 @@ export class UpdateFreelancerProfileDto{
     @IsArray()
     skills?: string[];
     @IsArray()
-    portfolioLinks?: PortfolioLinks[]; 
-
-    @IsDateString()
-    updatedAt: string;
-    
+    portfolioLinks?: PortfolioLinks[];     
     @ApiHideProperty()
     updatedBy: string;
 }

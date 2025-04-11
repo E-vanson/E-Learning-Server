@@ -19,6 +19,7 @@ export class FreelancerProfileOwnerGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log("Inside the quard...")
     const request = context.switchToHttp().getRequest<Request>();
     const user = this.security.getAuthenticatedUser();
 
@@ -26,14 +27,14 @@ export class FreelancerProfileOwnerGuard implements CanActivate {
       return true;
     }
 
-    const profileId = request.params['id'] || request.body['id'];
+    const userId = request.params['userId'] || request.body['id'];
 
-    if (!profileId) {
+    if (!userId) {
       return false;
     }
 
     try {
-        const profile = await this.profileService.findById(profileId);
+        const profile = await this.profileService.findByUserId(userId);
             
         return profile?.userId === user.id;
     } catch (error) {

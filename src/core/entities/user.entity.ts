@@ -62,6 +62,7 @@ export class UserEntity extends AuditingEntity {
       nickname: this.nickname,
       username: this.username,
       role: this.role,
+      jobRole: this.jobRole,
       email: this.email,
       emailVerified: this.emailVerified,
       headline: this.headline ?? undefined,

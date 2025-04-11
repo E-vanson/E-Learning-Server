@@ -7,7 +7,7 @@ import { PageDto, UserDto } from "../models";
 export interface FreelancerService{
     create(userId: string, values: CreateFreelancerProfileDto): Promise<FreelancerProfileDto>;
     
-    update(profileId: string, values:UpdateFreelancerProfileDto): Promise<void>;
+    update(profileId: string, values:UpdateFreelancerProfileDto): Promise<FreelancerProfileDto | null>;
     
     findById(id: string): Promise<FreelancerProfileDto | undefined>;
 

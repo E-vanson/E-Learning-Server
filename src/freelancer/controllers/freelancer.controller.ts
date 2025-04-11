@@ -40,24 +40,41 @@ export class FreelancerController {
         await this.freelancerService.create(user.id, values)
     }
 
-    @Put(':id')
+    // @UseGuards(FreelancerProfileOwnerGuard)
+    @Put(':profileId')
     async updateProfile(
-        @Param('id') profileId: string,
+        @Param('profileId') profileId: string,
         @Body() values:UpdateFreelancerProfileDto,
     ) {
+        console.log("Request thes reached the backend")
         return await this.freelancerService.update(profileId, values)
     }
 
-    @SerializeOptions({//determines how the response objec should be serialised
-    groups: ['detail'],
-    })
+    @UseGuards(FreelancerProfileOwnerGuard)
+    @Get('/profile/:userId')
+    async getFreelancerProfileByUserId(
+    @Param('userId') id: string,
+    @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
+    ) {
+    console.log("The freelancer: ", id )
+    const result = await this.freelancerService.findByUserId(id);
+    if (!result) {
+        resp.status(HttpStatus.NO_CONTENT);
+    }    
+    return result;
+    }
+
+
+    // @SerializeOptions({//determines how the response objec should be serialised
+    // groups: ['detail'],
+    // })
     @UseGuards(FreelancerProfileOwnerGuard)
     @Get(':id')
     async getFreelancerProfile(
     @Param('id') id: string,
     @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
     ) {
-        console.log("The freelancer: ", id )
+    console.log("The freelancer: ", id )
     const result = await this.freelancerService.findById(id);
     if (!result) {
         resp.status(HttpStatus.NO_CONTENT);
@@ -65,6 +82,7 @@ export class FreelancerController {
     return result;
     }
 
+    
     @UseGuards(FreelancerProfileOwnerGuard)
     @Delete(':id')
     async delete(@Param('id') id: string) {

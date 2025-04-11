@@ -61,7 +61,8 @@ export class TypeormFreelancerService implements FreelancerService{
             return freelancer.toDto();
     }
     
-    async update(profileId: string, values: UpdateFreelancerProfileDto): Promise<void>{
+    async update(profileId: string, values: UpdateFreelancerProfileDto): Promise<FreelancerProfileDto | null>{
+        console.log("Inside the update profile service")
          // Verify user exists
         if (!(await this.freelancerRepo.existsBy({ userId: values.userId }))) {
             throw new DomainError('User not found');
@@ -75,24 +76,29 @@ export class TypeormFreelancerService implements FreelancerService{
             throw new DomainError('Freelancer profile not found');
         }
         
-        const dbUpdatedAt = new Date(entity.updatedAt).getTime();
-        const userUpdatedAt = new Date(values.updatedAt).getTime();
+        // const dbUpdatedAt = new Date(entity.updatedAt).getTime();
+        // const userUpdatedAt = new Date(values.updatedAt).getTime();
     
-        if (dbUpdatedAt > userUpdatedAt) {
-            throw new DomainError('Profile has been modified since your last request. Please refresh.');
-        }
+        // if (dbUpdatedAt > userUpdatedAt) {
+        //     throw new DomainError('Profile has been modified since your last request. Please refresh.');
+        // }
     
-        await this.dataSource.transaction(async (em) => {        
+        const updatedProfile = await this.dataSource.transaction(async (em) => {        
+        // Perform the update
             await em.update(FreelancerProfileEntity, profileId, {
                 headline: values.headline,
                 hourlyRate: values.hourlyRate,
-                portfolioLinks: values.portfolioLinks,            
-                userId: values.userId,  
+                portfolioLinks: values.portfolioLinks,
+                userId: values.userId,
                 overview: values.overview,
                 skills: values.skills,
             });
-            
-        });
+
+            // Return the updated entity
+            return em.findOneBy(FreelancerProfileEntity, { 
+                id: profileId 
+            });
+        });       
     
         this.eventEmitter.emit(
             'audit.updated',
@@ -102,10 +108,12 @@ export class TypeormFreelancerService implements FreelancerService{
                 context: JSON.stringify({ 
                     headline: values.headline,
                     overview: values.overview,
-                    updatedBy: values.userId 
+                    updatedBy: values.userId,
+                    // updatedAt: userUpdatedAt
                 }),
             }),
         );
+        return updatedProfile;
     }
 
     async findById(id: string): Promise<FreelancerProfileDto | undefined> {
@@ -115,7 +123,7 @@ export class TypeormFreelancerService implements FreelancerService{
     }
 
     async findByUserId(userId: string): Promise<FreelancerProfileDto | undefined> {
-        const entity = await this.freelancerRepo.findOneBy({ id: userId });
+        const entity = await this.freelancerRepo.findOneBy({ userId: userId });
         
         return entity?.toDto();        
     }

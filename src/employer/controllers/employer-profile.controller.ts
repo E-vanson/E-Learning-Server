@@ -36,23 +36,43 @@ export class EmployerProfileController{
         status: 409, 
         description: 'Profile already exists' 
     })
-    async create(@Body() values: CreateEmployerProfileDto) {        
+    async create(@Body() values: CreateEmployerProfileDto) {
+        console.log("Inside the create employer controller: ", values)
         const user = this.security.getAuthenticatedUser();        
-        await this.employerProfileService.create(user.id, values)
+        const result = await this.employerProfileService.create(user.id, values)
+        return new Response(JSON.stringify(result), {
+            status: 201,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
     }
 
-    @Put(':id')
+    @Put(':profileId')
     @UseGuards(EmployerProfileOwnerGuard)
     async updateProfile(
-        @Param('id') profileId: string,
+        @Param('profileId') profileId: string,
         @Body() values:EmployerProfileUpdateDto,
     ) {
       return await this.employerProfileService.update(profileId, values)
     }
+
+    @Get('profile/:userId')
+    async getEmployerProfileByUserId(
+    @Param('userId') id: string,
+    @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.
+    ) {
+        console.log("Getting the employer....")
+        const result = await this.employerProfileService.findByUserId(id);
+        if (!result) {
+            resp.status(HttpStatus.NO_CONTENT);
+        }    
+        return result;
+    }
     
     
     // @UseGuards(EmployerProfileOwnerGuard)
-    @Get('profile/:id')
+    @Get(':id')
     async getEmployerProfile(
     @Param('id') id: string,
     @Res({ passthrough: true }) resp: Response, // Injects the Response object to control the HTTP response.

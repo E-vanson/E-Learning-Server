@@ -17,9 +17,7 @@ export class CourseUpdateTransformPipe
     value.updatedBy = user.id;
     if (!user) {
       throw new DomainError("You're not authorised here");
-    }
-
-    value.updatedAt = new Date().toISOString();
+    }    
     return value;
   }
 }

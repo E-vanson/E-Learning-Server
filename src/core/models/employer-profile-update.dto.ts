@@ -10,9 +10,6 @@ export class EmployerProfileUpdateDto{
     companyDescription?: string;
     website?: string;
 
-    @IsDateString()
-    updatedAt: string;
-    
     @ApiHideProperty()
     updatedBy?: string;
 }

@@ -37,7 +37,13 @@ export class FreelancerController {
     })
     async create(@Body() values: CreateFreelancerProfileDto) {        
         const user = this.security.getAuthenticatedUser();        
-        await this.freelancerService.create(user.id, values)
+        const result = await this.freelancerService.create(user.id, values);
+        return new Response(JSON.stringify(result), {
+        status: 201,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
     }
 
     // @UseGuards(FreelancerProfileOwnerGuard)
@@ -58,7 +64,7 @@ export class FreelancerController {
     ) {
     console.log("The freelancer: ", id )
     const result = await this.freelancerService.findByUserId(id);
-    if (!result) {
+    if (!result) {  
         resp.status(HttpStatus.NO_CONTENT);
     }    
     return result;

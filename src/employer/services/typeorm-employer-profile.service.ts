@@ -45,7 +45,7 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
 
         const newProfile = await this.employerProfileRepo.insert({
             userId: values.userId,
-            companyDescription: values.companydescription,
+            companyDescription: values.companyDescription,
             companyName: values.companyName,
             website: values.website,                        
         });
@@ -56,12 +56,13 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
 
         if (!employerProfileId) throw new DomainError("Employer Profile Doesn't exist");
 
-        const employerProfile = await this.employerProfileRepo.findOneByOrFail({ id: employerProfileId });        
+        const employerProfile = await this.employerProfileRepo.findOneByOrFail({ id: employerProfileId });
+        console.log("The new emploer profile: ", employerProfile)
 
         return employerProfile.toDto();
     }
 
-    async update(profileId:string, values: EmployerProfileUpdateDto): Promise<void> {
+    async update(profileId:string, values: EmployerProfileUpdateDto): Promise<EmployerProfileDto | null> {
     // Verify user exists
     if (!(await this.userRepo.existsBy({ id: values.userId }))) {
         throw new DomainError('User not found');
@@ -74,15 +75,9 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
     if (!entity) {
         throw new DomainError('Employer profile not found');
     }
-    
-    const dbUpdatedAt = new Date(entity.updatedAt).getTime();
-    const userUpdatedAt = new Date(values.updatedAt).getTime();
+        
 
-    if (dbUpdatedAt > userUpdatedAt) {
-        throw new DomainError('Profile has been modified since your last request. Please refresh.');
-    }
-
-    await this.dataSource.transaction(async (em) => {        
+    const updatedProfile = await this.dataSource.transaction(async (em) => {        
         await em.update(EmployerProfileEntity, profileId, {
             companyName: values.companyName,
             companyDescription: values.companyDescription,
@@ -90,6 +85,9 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
             userId:  values.userId,             
         });
         
+        return em.findOneBy(EmployerProfileEntity, { 
+                        id: profileId 
+        });        
     });
 
     this.eventEmitter.emit(
@@ -103,6 +101,7 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
             }),
         }),
     );
+        return updatedProfile;
 }
     
     async delete(id: string): Promise<void> {

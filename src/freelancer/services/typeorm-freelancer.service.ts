@@ -56,9 +56,14 @@ export class TypeormFreelancerService implements FreelancerService{
     
             if (!freelancerId) throw new DomainError("Freelancer Profile Doesn't exist");
     
-            const freelancer = await this.freelancerRepo.findOneByOrFail({ id: freelancerId });        
+        const freelancer = await this.freelancerRepo.findOneByOrFail({ id: freelancerId });        
+        
+        console.log("The created freelancer: ", freelancer)
     
-            return freelancer.toDto();
+            return {
+                ...freelancer.toDto(),
+                hourlyRate: Number(freelancer.hourlyRate) // Convert decimal to number
+            };
     }
     
     async update(profileId: string, values: UpdateFreelancerProfileDto): Promise<FreelancerProfileDto | null>{

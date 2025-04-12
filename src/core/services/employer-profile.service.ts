@@ -8,11 +8,11 @@ import { EmployerProfileUpdateDto } from "../models/employer-profile-update.dto"
 export interface EmployerProfileService{
     create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto>;
 
-    update(profileId: string, values:EmployerProfileUpdateDto): Promise<void>;
+    update(profileId: string, values:EmployerProfileUpdateDto): Promise<EmployerProfileDto | null>;
     
     findById(id: string): Promise<EmployerProfileDto | undefined>;
 
-    findByUserId(userId: string): Promise<EmployerProfileDto | undefined>;
+    findByUserId(userId:    string): Promise<EmployerProfileDto | undefined>;
 
     findByCompanyName(companyName: string): Promise<EmployerProfileDto | undefined>;
 

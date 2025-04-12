@@ -14,7 +14,7 @@ export class CreateEmployerProfileDto{
 
     @ApiProperty({ example: 'Tech Corp' })
     @IsNotEmpty()
-    companydescription: string;
+    companyDescription: string;
 
     @ApiProperty({ example: 'Tech Corp' })
     @IsNotEmpty()

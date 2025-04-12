@@ -10,6 +10,7 @@ import { ApiOkResponsePaginated } from '@/common/decorators';
 import { FreelancerProfileDto } from '@/core/models/freelancer-profile.dto';
 import { FreelancerProfileQueryDto } from '@/core/models/freelancer-profile-query.dto';
 import { FreelancerProfileQueryTransformPipe } from '../pipes/freelancer-profile-query.pipe';
+import { ProfileOwnerGuard } from '../guards/profile-owner.guard';
 
 @ApiTags('FreelancerProfile')
 @ApiBearerAuth()
@@ -89,10 +90,12 @@ export class FreelancerController {
     }
 
     
-    @UseGuards(FreelancerProfileOwnerGuard)
-    @Delete(':id')
-    async delete(@Param('id') id: string) {
-    await this.freelancerService.delete(id);
+    @UseGuards(ProfileOwnerGuard)
+    @Delete(':profileId')
+    async delete(@Param('profileId') id: string): Promise<boolean> {
+        const result = await this.freelancerService.delete(id);
+        console.log("The result of deleting profile: ", result);
+        return result;
     }
 
     // @SerializeOptions({

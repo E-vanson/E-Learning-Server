@@ -12,7 +12,8 @@ export enum UserRole {
 export enum UserJobRole{
   FREELANCER = 'freelancer',
   EMPLOYER = 'employer',
-  USER = 'user'
+  USER = 'user',
+  HYBRID = 'hybrid'
 }
 
 export class UserDto {

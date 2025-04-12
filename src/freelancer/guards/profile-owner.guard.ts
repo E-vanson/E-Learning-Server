@@ -7,18 +7,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import {EMPLOYER_PROFILE_SERVICE, EmployerProfileService } from '@/core/services/employer-profile.service';
+import { FREELANCER_PROFILE_SERVICE, FreelancerService } from '@/core/services/freelancer.service';
 
 
 @Injectable()
-export class EmployerProfileOwnerGuard implements CanActivate {
+export class ProfileOwnerGuard implements CanActivate {
   constructor(
     private security: SecurityContextService,
-    @Inject(EMPLOYER_PROFILE_SERVICE)
-    private profileService: EmployerProfileService,
+    @Inject(FREELANCER_PROFILE_SERVICE)
+    private profileService: FreelancerService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log("Inside the quard...")
     const request = context.switchToHttp().getRequest<Request>();
     const user = this.security.getAuthenticatedUser();
 
@@ -33,14 +34,14 @@ export class EmployerProfileOwnerGuard implements CanActivate {
     }
 
     try {
-      const profile = await this.profileService.findById(profileId);
+        const profile = await this.profileService.findById(profileId);
             
-      return profile?.userId === user.id;
+        return profile?.userId === user.id;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+        if (error instanceof NotFoundException) {
         return false;
-      }
-      throw error;
+        }
+        throw error;
     }
   }
 }

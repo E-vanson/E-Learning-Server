@@ -10,7 +10,8 @@ import { EmployerProfileQueryDto } from "@/core/models/employer-profile-query.dt
 import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
 import { USER_SERVICE, UserService } from "@/core/services";
 import { EmployerProfileService } from "@/core/services/employer-profile.service";
-import { Inject } from "@nestjs/common";
+import { FREELANCER_PROFILE_SERVICE, FreelancerService } from "@/core/services/freelancer.service";
+import { forwardRef, Inject } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
@@ -25,22 +26,27 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         @InjectRepository(UserEntity)
         private userRepo: Repository<UserEntity>,
         @Inject (USER_SERVICE)
-        private userService: UserService
+        private userService: UserService,
+        @Inject(forwardRef(() => FREELANCER_PROFILE_SERVICE))
+        private freelacerService: FreelancerService
     ) { }
     
-    async create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto> {        
+    async create(userId: string, values: CreateEmployerProfileDto): Promise<EmployerProfileDto> {                
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new DomainError("Please Create An Account First!!")
+
         
         const existingProfile = await this.employerProfileRepo.findOne({
             where: { userId: userId } 
         })
 
-        const user = await this.userRepo.findOne({ where: { id: userId } });
-        if (!user) throw new DomainError("Please Create An Account First!!")
-
         if (existingProfile || user.jobRole === "employer") {
             throw new DomainError("Employer Profile Already Exists");
         }
 
+        const existingFreelancerProfile = await this.freelacerService.findByUserId(userId)
+
+        
         values.userId = userId;
 
         const newProfile = await this.employerProfileRepo.insert({
@@ -50,7 +56,9 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
             website: values.website,                        
         });
 
-        await this.userService.updateJobRole(userId, UserJobRole.EMPLOYER);
+        existingFreelancerProfile ?
+        await this.userService.updateJobRole(userId, UserJobRole.HYBRID) :
+        await this.userService.updateJobRole(userId, UserJobRole.EMPLOYER);            
 
         const employerProfileId = newProfile.identifiers[0].id;
 
@@ -104,9 +112,14 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         return updatedProfile;
 }
     
-    async delete(id: string): Promise<void> {
+    async delete(id: string): Promise<boolean> {
         const entity = await this.employerProfileRepo.findOneBy({ id: id });
         if (!entity) throw new DomainError("Profile Not Found");
+
+        const userId = entity.userId;
+
+        const user = await this.userService.findById(userId)
+        const jobRole = user?.jobRole
 
         await this.dataSource.transaction(async (em) => {
             await em.delete(EmployerProfileEntity, id);
@@ -120,6 +133,13 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
                 context: JSON.stringify({companyName: entity.companyName})
             })
         )
+
+        if (jobRole === UserJobRole.HYBRID) {
+            await this.userService.updateJobRole(userId, UserJobRole.FREELANCER)
+        }
+        await this.userService.updateJobRole(userId, UserJobRole.USER)
+        
+        return true;
         
     }
    
@@ -192,7 +212,7 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
     }
 
     async findByUserId(userId: string): Promise<EmployerProfileDto | undefined> {
-        const entity = await this.employerProfileRepo.findOneByOrFail({ userId: userId });
+        const entity = await this.employerProfileRepo.findOneBy({ userId: userId });
         
         return entity?.toDto();  
     }

@@ -86,9 +86,9 @@ export class EmployerProfileController{
     }
     
     @UseGuards(EmployerProfileOwnerGuard)
-    @Delete(':id')
-    async delete(@Param('id') id: string) {
-    await this.employerProfileService.delete(id);
+    @Delete(':profileId')
+    async delete(@Param('profileId') id: string): Promise<boolean> {
+    return await this.employerProfileService.delete(id);
     }
 
      @SerializeOptions({

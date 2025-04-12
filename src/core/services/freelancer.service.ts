@@ -17,7 +17,7 @@ export interface FreelancerService{
 
     find(query: FreelancerProfileQueryDto): Promise<PageDto<FreelancerProfileDto>>;        
 
-    delete(id: string): Promise<void>
+    delete(id: string): Promise<boolean>
 }
 
 export const FREELANCER_PROFILE_SERVICE = 'FreelancerProfileService';

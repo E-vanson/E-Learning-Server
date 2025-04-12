@@ -8,6 +8,7 @@ import { FreelancerProfileQueryDto } from "@/core/models/freelancer-profile-quer
 import { UpdateFreelancerProfileDto } from "@/core/models/freelancer-profile-update.dto";
 import { FreelancerProfileDto } from "@/core/models/freelancer-profile.dto";
 import { USER_SERVICE, UserService } from "@/core/services";
+import { EMPLOYER_PROFILE_SERVICE, EmployerProfileService } from "@/core/services/employer-profile.service";
 import { FreelancerService } from "@/core/services/freelancer.service";
 import { Inject, NotFoundException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
@@ -24,7 +25,9 @@ export class TypeormFreelancerService implements FreelancerService{
         @InjectRepository(UserEntity)
         private userRepo: Repository<UserEntity>,
         @Inject(USER_SERVICE)
-        private userService: UserService
+        private userService: UserService,
+        @Inject(EMPLOYER_PROFILE_SERVICE)
+        private employerService: EmployerProfileService
     ) { }
     
     async create(userId: string, values: CreateFreelancerProfileDto): Promise<FreelancerProfileDto> {        
@@ -32,6 +35,8 @@ export class TypeormFreelancerService implements FreelancerService{
             const existingProfile = await this.freelancerRepo.findOne({
                 where: { userId: userId } 
             })
+            
+            const existingEmployerProfile = await this.employerService.findByUserId(userId);
 
             const user = await this.userRepo.findOne({ where: { id: userId } });
             if (!user) throw new DomainError("Please Create An Account First!!")
@@ -39,8 +44,10 @@ export class TypeormFreelancerService implements FreelancerService{
             if (existingProfile) {
                 throw new DomainError("Freelancer Profile Already Exists");
             }
+            existingEmployerProfile ?
+            await this.userService.updateJobRole(user.id, UserJobRole.HYBRID) : 
             await this.userService.updateJobRole(user.id, UserJobRole.FREELANCER)
-
+            
             values.userId = userId;
     
             const newProfile = await this.freelancerRepo.insert({
@@ -133,9 +140,14 @@ export class TypeormFreelancerService implements FreelancerService{
         return entity?.toDto();        
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id: string): Promise<boolean> {
         const entity = await this.freelancerRepo.findOneBy({ id: id });
         if (!entity) throw new DomainError("Profile Not Found");
+
+        const userId = entity.userId;
+
+        const user = await this.userService.findById(userId)
+        const jobRole = user?.jobRole
 
         await this.dataSource.transaction(async (em) => {
             await em.delete(FreelancerProfileEntity, id);
@@ -149,7 +161,13 @@ export class TypeormFreelancerService implements FreelancerService{
                 context: JSON.stringify({overview: entity.overview})
             })
         )
+
+        if (jobRole === UserJobRole.HYBRID) {
+            await this.userService.updateJobRole(userId, UserJobRole.EMPLOYER)
+        }
+        await this.userService.updateJobRole(userId, UserJobRole.USER)
         
+        return true;        
     }
 
     async find(query: FreelancerProfileQueryDto): Promise<PageDto<FreelancerProfileDto>> {

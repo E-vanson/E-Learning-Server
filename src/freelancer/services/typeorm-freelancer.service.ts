@@ -164,8 +164,10 @@ export class TypeormFreelancerService implements FreelancerService{
 
         if (jobRole === UserJobRole.HYBRID) {
             await this.userService.updateJobRole(userId, UserJobRole.EMPLOYER)
+        } else {
+            await this.userService.updateJobRole(userId, UserJobRole.USER)    
         }
-        await this.userService.updateJobRole(userId, UserJobRole.USER)
+        
         
         return true;        
     }

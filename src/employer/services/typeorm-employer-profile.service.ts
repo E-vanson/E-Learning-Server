@@ -136,9 +136,9 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
 
         if (jobRole === UserJobRole.HYBRID) {
             await this.userService.updateJobRole(userId, UserJobRole.FREELANCER)
-        }
-        await this.userService.updateJobRole(userId, UserJobRole.USER)
-        
+        } else {
+            await this.userService.updateJobRole(userId, UserJobRole.USER)    
+        }            
         return true;
         
     }

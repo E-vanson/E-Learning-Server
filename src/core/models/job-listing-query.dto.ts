@@ -32,6 +32,14 @@ export class JobListingQueryDto extends QueryDto {
   @IsOptional()
   @IsString()
   experienceLevel?: ExperienceLevel;
+
+  @IsOptional()
+  @IsString()
+  start?: string; // Start date
+
+  @IsOptional()
+  @IsString()
+  end?: string; // End date
     
   orderBy?: 'publishedAt';
   

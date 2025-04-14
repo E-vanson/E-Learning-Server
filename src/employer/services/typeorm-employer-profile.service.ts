@@ -271,6 +271,7 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
             });
         }
         return {
+            jobs: employerJobs,
             jobCount: employerJobs.length,
             applicationCount: applicationCount,
             reviewCount: reviewCount,

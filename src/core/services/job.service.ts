@@ -21,6 +21,8 @@ export interface JobService {
     isJobOwner(userId: string, jobId: string): Promise<boolean>;
     
     delete(id: string): Promise<void>;
+
+    findByEmployerIdAndQuery(employerId: string, query: JobListingQueryDto): Promise<PageDto<JobListingDto>>
 }
 
 export const JOB_SERVICE = 'JobService';

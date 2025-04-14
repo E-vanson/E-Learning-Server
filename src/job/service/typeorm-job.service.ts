@@ -285,4 +285,128 @@ export class TypeormJobService implements JobService{
             })
         )
     }
+
+   async findByEmployerIdAndQuery(employerId: string, query: JobListingQueryDto = new JobListingQueryDto()): Promise<PageDto<JobListingDto>> {
+    const { limit, offset } = QueryDto.getPageable(query);
+    
+    // Data query with relations
+    const dataQuery = this.jobRepo.createQueryBuilder('job')
+        .leftJoinAndSelect('job.employer', 'employer')
+        .where('job.employerId = :employerId', { employerId });
+
+    // Count query (no relations needed)
+    const countQuery = this.jobRepo.createQueryBuilder('job')
+        .where('job.employerId = :employerId', { employerId });
+
+    // ID query for pagination
+    const idQuery = this.jobRepo.createQueryBuilder('job')
+        .where('job.employerId = :employerId', { employerId });
+
+    // Apply filters to all queries
+    [dataQuery, countQuery, idQuery].forEach(qb => {
+        if (query.title) {
+            qb.andWhere('job.title ILIKE :title', { title: `%${query.title}%` });
+        }
+
+        if (query.skillsRequired) {
+            const skillsArray = Array.isArray(query.skillsRequired) 
+                ? query.skillsRequired 
+                : [query.skillsRequired];
+            const lowerCaseSkills = skillsArray.map(skill => skill.toLowerCase());
+            
+            qb.andWhere(
+                `EXISTS (
+                    SELECT 1 FROM unnest(job.skills_required) AS skill 
+                    WHERE LOWER(skill) = ANY(ARRAY[:...skills])
+                )`,
+                { skills: lowerCaseSkills }
+            );
+        }
+
+        if (query.minBudget) {
+            qb.andWhere('job.budget >= :minBudget', {
+                minBudget: query.minBudget
+            });
+        }
+
+        if (query.maxBudget) {
+            qb.andWhere('job.budget <= :maxBudget', {
+                maxBudget: query.maxBudget
+            });
+        }
+
+        if (query.budgetType) {
+            qb.andWhere('job.budgetType = :budgetType', {
+                budgetType: query.budgetType
+            });
+        }
+
+        if (query.status) {
+            qb.andWhere('job.status = :status', {
+                status: query.status
+            });
+        }
+
+        if (query.experienceLevel) {
+            qb.andWhere('job.experienceLevel = :experienceLevel', {
+                experienceLevel: query.experienceLevel
+            });
+        }
+
+        if (query.q) {
+            qb.andWhere(
+                '(LOWER(job.title) LIKE LOWER(:search) OR ' +
+                'LOWER(job.description) LIKE LOWER(:search))',
+                { search: `%${query.q}%` }
+            );
+        }
+
+        // Add date filtering
+        if (query.start) {
+            qb.andWhere('job.created_at >= :startDate', { 
+                startDate: new Date(query.start) 
+            });
+        }
+
+        if (query.end) {
+            // Add one day to include the entire end date
+            const endDate = new Date(query.end);
+            endDate.setDate(endDate.getDate() + 1);
+            qb.andWhere('job.created_at < :endDate', { endDate });
+        }
+    });
+
+    const orderByColumn = query.orderBy === 'publishedAt' 
+        ? 'job.published_at'  // Database column name
+        : 'job.created_at';   // Database column name
+
+    // Configure ID query
+    idQuery
+        .select(['job.id'])
+        .orderBy(orderByColumn, 'DESC')
+        .skip(offset)
+        .take(limit);
+
+    // Execute queries
+    const [totalCount, idList] = await Promise.all([
+        countQuery.getCount(),
+        idQuery.getMany()
+    ]);
+
+    // Get full entities
+    let list: JobListingEntity[] = [];
+    if (idList.length > 0) {
+        list = await dataQuery
+            .andWhereInIds(idList.map(job => job.id))
+            .orderBy(orderByColumn, 'DESC')
+            .getMany();
+    }
+
+    return PageDto.from({
+        list: list.map(job => job.toDto()),
+        count: totalCount,
+        offset,
+        limit
+    });
+}
 }

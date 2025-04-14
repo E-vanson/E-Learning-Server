@@ -335,4 +335,43 @@ export class TypeormJobProposalService implements ProposalService{
 
         return true;
     }
+
+    // async getProposalsByEmployer(
+    //     employerId: string,
+    //     page: number = 1,
+    //     limit: number = 10,
+    // ): Promise<{ count: number; proposals: JobProposalEntity[] }> {
+    //     // First get all job IDs created by this employer
+    //     const employerJobs = await this.jobRepo.find({
+    //     where: { employerId: employerId },
+    //     select: ['id'],
+    //     });
+        
+    //     const jobIds = employerJobs.map(job => job.id);
+
+    //     if (jobIds.length === 0) {
+    //     return { count: 0, proposals: [] };
+    //     }
+
+    //     // Create query options with pagination
+    //     const findOptions: FindManyOptions<JobProposalEntity> = {
+    //     where: { job_id: In(jobIds) },
+    //     relations: ['job', 'freelancer'],
+    //     skip: (page - 1) * limit,
+    //     take: limit,
+    //     order: { created_at: 'DESC' },
+    //     };
+
+    //     // Get proposals and count in parallel
+    //     const [proposals, count] = await Promise.all([
+    //     this.proposalRepository.find(findOptions),
+    //     this.proposalRepository.count(findOptions),
+    //     ]);
+
+    //     return {
+    //     count,
+    //     proposals,
+    //     };
+    // }
+    
 }

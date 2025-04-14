@@ -7,17 +7,24 @@ import { TypeormEmployerProfileService } from './services/typeorm-employer-profi
 import { UserEntity } from '@/core/entities/user.entity';
 import { UserModule } from '@/user/user.module';
 import { FreelancerModule } from '@/freelancer/freelancer.module';
+import { JobProposalEntity } from '@/core/entities/job-proposal-entity';
+import { ProposalModule } from '@/proposal/proposal.module';
+import { DashboardController } from './controllers/employer-dashboard-controller';
+import { JobModule } from '@/job/job.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             EmployerProfileEntity,
-            UserEntity
+            UserEntity,
+            JobProposalEntity
         ]),
         UserModule,        
-        forwardRef(() => FreelancerModule)
+        forwardRef(() => FreelancerModule),
+        ProposalModule,
+        JobModule
     ],
-    controllers: [EmployerProfileController],
+    controllers: [EmployerProfileController, DashboardController],
     providers: [
         {
             provide: EMPLOYER_PROFILE_SERVICE,

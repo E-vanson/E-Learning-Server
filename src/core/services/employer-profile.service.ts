@@ -1,4 +1,5 @@
 import { PageDto } from "../models";
+import { EmployerDashboardSummarDto } from "../models/employer-dashboard-summart.dto";
 import { EmployerProfileDto } from "../models/employer-profie.dto";
 import { CreateEmployerProfileDto } from "../models/employer-profile-create.dto";
 import { EmployerPayloadDto } from "../models/employer-profile-payload.dto";
@@ -19,6 +20,8 @@ export interface EmployerProfileService{
     find(query: EmployerProfileQueryDto): Promise<PageDto<EmployerProfileDto>>;        
 
     delete(id: string): Promise<boolean>;
+
+    getSummary(userId: string): Promise<EmployerDashboardSummarDto | undefined>;
 }
 
 export const EMPLOYER_PROFILE_SERVICE = 'EmployerProfileService';

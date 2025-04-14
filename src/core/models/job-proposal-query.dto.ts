@@ -11,7 +11,9 @@ export class JobProposalQueryDto extends QueryDto{
     // @IsOptional()
     // job?: JobListingDto;
         
-    // freelancer?: FreelancerProfileDto;
+  // freelancer?: FreelancerProfileDto;
+  
+    jobId?: string;
 
     freelancerId?: string;
 

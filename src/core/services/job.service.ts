@@ -12,6 +12,8 @@ export interface JobService {
 
     findById(id: string): Promise<JobListingDto | undefined>;
 
+    findByEmployerId(employerId: string): Promise<JobListingDto[] | undefined>;
+
     findBySlug(slug: string): Promise<JobListingDto | undefined>;
 
     find(query: JobListingQueryDto): Promise<PageDto<JobListingDto>>

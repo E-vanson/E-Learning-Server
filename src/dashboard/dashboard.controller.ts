@@ -6,7 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Dashboard')
 @Controller('/admin/dashboard')
-@Roles(UserRole.ADMIN, UserRole.OWNER, UserRole.USER)
+@Roles(UserRole.ADMIN, UserRole.OWNER)
 export class DashboardController {
   constructor(
     @Inject(DASHBOARD_SERVICE) private dashboardService: DashboardService,

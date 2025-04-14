@@ -142,6 +142,15 @@ export class TypeormJobService implements JobService{
         return entity?.toDto()
     }
 
+    async findByEmployerId(employerId: string): Promise<JobListingDto[] | undefined>{
+        const entities = await this.jobRepo.find({ where: { employerId } });
+        if (!entities) {
+            throw new DomainError("No Jobs Found")
+        }
+
+        return entities.map(entity => entity.toDto());
+    }
+
     async findBySlug(slug: string): Promise<JobListingDto | undefined> {
         const entity = await this.jobRepo.findOne({where: { slug: slug } });
 

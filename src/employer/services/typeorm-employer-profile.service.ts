@@ -1,16 +1,21 @@
 import { DomainError } from "@/common/errors";
 import { EmployerProfileEntity } from "@/core/entities/employer-profile-entity";
+import { JobProposalEntity } from "@/core/entities/job-proposal-entity";
 import { UserEntity } from "@/core/entities/user.entity";
 import { AuditEvent } from "@/core/events";
 import { PageDto, QueryDto, UserJobRole } from "@/core/models";
+import { EmployerDashboardSummarDto } from "@/core/models/employer-dashboard-summart.dto";
 import { EmployerProfileDto } from "@/core/models/employer-profie.dto";
 import { CreateEmployerProfileDto } from "@/core/models/employer-profile-create.dto";
 import { EmployerPayloadDto } from "@/core/models/employer-profile-payload.dto";
 import { EmployerProfileQueryDto } from "@/core/models/employer-profile-query.dto";
 import { EmployerProfileUpdateDto } from "@/core/models/employer-profile-update.dto";
+import { JobProposalQueryDto } from "@/core/models/job-proposal-query.dto";
+import { ProposalStatus } from "@/core/models/job-proposal.dto";
 import { USER_SERVICE, UserService } from "@/core/services";
 import { EmployerProfileService } from "@/core/services/employer-profile.service";
 import { FREELANCER_PROFILE_SERVICE, FreelancerService } from "@/core/services/freelancer.service";
+import { JOB_SERVICE, JobService } from "@/core/services/job.service";
 import { forwardRef, Inject } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -25,8 +30,12 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         private employerProfileRepo: Repository<EmployerProfileEntity>,
         @InjectRepository(UserEntity)
         private userRepo: Repository<UserEntity>,
+        @InjectRepository(JobProposalEntity)
+        private proposalRepo: Repository<JobProposalEntity>,
         @Inject (USER_SERVICE)
         private userService: UserService,
+        @Inject(JOB_SERVICE)
+        private jobService: JobService,    
         @Inject(forwardRef(() => FREELANCER_PROFILE_SERVICE))
         private freelacerService: FreelancerService
     ) { }
@@ -215,6 +224,58 @@ export class TypeormEmployerProfileService implements EmployerProfileService{
         const entity = await this.employerProfileRepo.findOneBy({ userId: userId });
         
         return entity?.toDto();  
+    }
+
+    async getSummary(userId: string): Promise<EmployerDashboardSummarDto | undefined>{
+        const employer = await this.findByUserId(userId);        
+        if (!employer) {
+            throw new DomainError("Can Not Get Summary")
+        }
+        const employerId = employer.id
+
+        const employerJobs = await this.jobService.findByEmployerId(employerId)
+        if (!employerJobs) throw new DomainError("No jobs Found");       
+        
+        const jobIds = employerJobs.map(job => job.id);
+        let applicationCount = 0;
+        let reviewCount = 0;
+        let contractCount = 0;
+
+        if (jobIds.length > 0) {
+            // Get all proposals for employer's jobs
+            const proposalQuery = new JobProposalQueryDto();
+            
+            // Use query builder to count proposals for these jobs
+            const proposalCounts = await this.proposalRepo.createQueryBuilder('proposal')
+            .select('proposal.status', 'status')
+            .addSelect('COUNT(proposal.id)', 'count')
+            .where('proposal.job_id IN (:...jobIds)', { jobIds })
+            .groupBy('proposal.status')
+            .getRawMany();
+            
+            // Calculate counts based on status
+            proposalCounts.forEach(item => {
+            const count = parseInt(item.count);
+            applicationCount += count; // Total applications
+            
+            // Count reviewed proposals
+            if (item.status === ProposalStatus.ACCEPTED || 
+                item.status === ProposalStatus.REJECTED) {
+                reviewCount += count;
+            }
+            
+            // Count contract proposals (accepted proposals)
+            if (item.status === ProposalStatus.ACCEPTED) {
+                contractCount += count;
+            }
+            });
+        }
+        return {
+            jobCount: employerJobs.length,
+            applicationCount: applicationCount,
+            reviewCount: reviewCount,
+            contractCount: contractCount
+       }
     }
 
    

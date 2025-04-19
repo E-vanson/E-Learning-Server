@@ -37,6 +37,13 @@ export class JobProposalEntity extends AuditingEntity {
   @Column({ type: 'text' })
   cover_letter: string;
 
+  @Column({
+    type: 'varchar',
+    length: 2000,
+    nullable: true,
+  })
+  file_attachment?: string | null;
+
   @Column({ type: 'numeric', precision: 10, scale: 2 })
   bid_amount: number;
 
@@ -47,7 +54,7 @@ export class JobProposalEntity extends AuditingEntity {
     type: 'enum',
     enum: ProposalStatus,
     enumName: 'el_job_proposal_status_enum',
-    default: ProposalStatus.SUBMITTED
+    default: ProposalStatus.PENDING
   })
   status: ProposalStatus;
 
@@ -78,6 +85,7 @@ export class JobProposalEntity extends AuditingEntity {
             freelancer: this.freelancer?.toDto(),
             freelancerId: this.freelancer_id,
             cover_letter: this.cover_letter,
+            file_attachment: this.file_attachment,
             bid_amount: this.bid_amount,
             estimated_time: this.estimated_time,
             status: this.status,

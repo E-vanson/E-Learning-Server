@@ -8,9 +8,11 @@ export const Employer = () =>
   applyDecorators(
     Roles(
     UserRole.ADMIN,
-    UserRole.OWNER 
+    UserRole.OWNER,
+    UserRole.USER
     ),
     Job_Roles(
-      UserJobRole.EMPLOYER  
+      UserJobRole.EMPLOYER,
+      UserJobRole.HYBRID
     ),
   );

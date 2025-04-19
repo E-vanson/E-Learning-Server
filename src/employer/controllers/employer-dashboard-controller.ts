@@ -10,6 +10,9 @@ import { Controller, Get, Inject, Param, ParseIntPipe, Query } from '@nestjs/com
 import { ApiTags } from '@nestjs/swagger';
 import { EmployerProfileQueryTransformPipe } from '../pipes/employer-profile-query.pipe';
 import { EmployerProfileQueryDto } from '@/core/models/employer-profile-query.dto';
+import { JOB_PROPOSAL_SERVICE, ProposalService } from '@/core/services/job-proposal.service';
+import { ProposalQueryTransformPipe } from '@/proposal/pipes/proposal-query.pipe';
+import { JobProposalQueryDto } from '@/core/models/job-proposal-query.dto';
 
 @ApiTags('Employer-Dashboard')
 @Controller('employer/dashboard')
@@ -19,7 +22,9 @@ export class DashboardController {
       @Inject(EMPLOYER_PROFILE_SERVICE)
       private employerService: EmployerProfileService,
       @Inject(JOB_SERVICE)
-      private jobSerivice: JobService
+      private jobSerivice: JobService,
+      @Inject(JOB_PROPOSAL_SERVICE) 
+      private proposalService: ProposalService
   ) {}
 
   @Get('summary')
@@ -37,6 +42,17 @@ export class DashboardController {
 
     const jobs = await this.jobSerivice.findByEmployerIdAndQuery(employerId, query);
     return jobs;
+  }
+
+  @Get('proposals')
+  async getProposals(@Query(ProposalQueryTransformPipe) query: JobProposalQueryDto) {
+    const user = this.security.getAuthenticatedUser();
+    const employer = await this.employerService.findByUserId(user.id);
+    if (!employer) throw new DomainError("You're not authorised here");
+    const employerId = employer.id;
+
+    const proposals = await this.proposalService.findProposalsByEmployerId(employerId, query);
+    return proposals;
   }
 
 //   @Get('enrollments/:year')

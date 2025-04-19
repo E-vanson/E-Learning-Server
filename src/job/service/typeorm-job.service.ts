@@ -28,49 +28,49 @@ export class TypeormJobService implements JobService{
         // @Inject(JOB_SERVICE)
         // private jobService: JobService
     ) {}
-    
-        async create(userId: string, values: JobListingCreateDto): Promise<string>{        
-            const existingProfile = await this.employerRepo.findOne({
-                where: {userId: userId } 
-            })
-            console.log("the existing profile: ", existingProfile);
 
-            const user = await this.userRepo.findOne({ where: { id: userId } });
-            if (!user) throw new DomainError("Please Create An Account First!!")
-            console.log("the existing user: ", user);
+    async create(userId: string, values: JobListingCreateDto): Promise<string>{        
+        const existingProfile = await this.employerRepo.findOne({
+            where: {userId: userId } 
+        })
+        console.log("the existing profile: ", existingProfile);
 
-            if (!existingProfile) {
-                throw new DomainError("Create An Employer Profile To Post Job")
-            }
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new DomainError("Please Create An Account First!!")
+        console.log("the existing user: ", user);
 
-            values.employerId = existingProfile.id;
-
-            const newJob = await this.jobRepo.insert({
-                title: values.title,
-                employer: existingProfile,
-                employerId: existingProfile.id,
-                description: values.description,
-                slug: values.slug,
-                skillsRequired: values.skillsRequired,
-                budget: values.budget,
-                budgetType: values.budgetType,
-                deadline: values.deadline,
-                experienceLevel: values.experienceLevel,
-                status: values.status
-            })
-
-            console.log("the skills required: ", values.skillsRequired, values);
-            console.log("the new job: ", newJob.identifiers?.[0]?.id);
-
-            if (!newJob.identifiers?.[0]?.id) {
-                console.error("Invalid identifiers format:", newJob.identifiers);
-                throw new DomainError("Job ID not generated properly");
-            }
-            const jobId = newJob.identifiers[0].id;
-            console.log("Extracted Job ID:", jobId);
-            
-            return jobId;
+        if (!existingProfile) {
+            throw new DomainError("Create An Employer Profile To Post Job")
         }
+
+        values.employerId = existingProfile.id;
+
+        const newJob = await this.jobRepo.insert({
+            title: values.title,
+            employer: existingProfile,
+            employerId: existingProfile.id,
+            description: values.description,
+            slug: values.slug,
+            skillsRequired: values.skillsRequired,
+            budget: values.budget,
+            budgetType: values.budgetType,
+            deadline: values.deadline,
+            experienceLevel: values.experienceLevel,
+            status: values.status
+        })
+
+        console.log("the skills required: ", values.skillsRequired, values);
+        console.log("the new job: ", newJob.identifiers?.[0]?.id);
+
+        if (!newJob.identifiers?.[0]?.id) {
+            console.error("Invalid identifiers format:", newJob.identifiers);
+            throw new DomainError("Job ID not generated properly");
+        }
+        const jobId = newJob.identifiers[0].id;
+        console.log("Extracted Job ID:", jobId);
+        
+        return jobId;
+    }
 
     async update(userId: string, jobId: string, values: JobListingUpdateDto): Promise<void>{
         const entity = await this.jobRepo.findOne({
@@ -268,7 +268,7 @@ export class TypeormJobService implements JobService{
         });
    }
     
-    async delete(id: string): Promise<void>{
+    async delete(id: string): Promise<boolean>{
         const entity = await this.jobRepo.findOneBy({ id: id });
         if (!entity) throw new DomainError("Job Not Found");
 
@@ -284,6 +284,8 @@ export class TypeormJobService implements JobService{
                 context: JSON.stringify({title: entity.title})
             })
         )
+
+        return true;
     }
 
    async findByEmployerIdAndQuery(employerId: string, query: JobListingQueryDto = new JobListingQueryDto()): Promise<PageDto<JobListingDto>> {

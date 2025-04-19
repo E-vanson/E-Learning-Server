@@ -21,6 +21,8 @@ export class JobController{
         private jobService: JobService
     ) { }
 
+    
+
     @Get(':slug')
     // @UseGuards(JobOwnerGuard)
     async getJobBySlug(

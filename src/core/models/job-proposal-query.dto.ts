@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional } from "class-validator";
+import { IsEnum, IsOptional, IsString } from "class-validator";
 import { QueryDto } from "./query.dto";
 import { JobListingDto } from "./job-listing.dto";
 import { FreelancerProfileDto } from "./freelancer-profile.dto";
@@ -29,6 +29,14 @@ export class JobProposalQueryDto extends QueryDto{
     @IsOptional()
     @IsEnum(ProposalStatus)
     status?: ProposalStatus;
+  
+    @IsOptional()
+    @IsString()
+    start?: string; // Start date
+  
+    @IsOptional()
+    @IsString()
+    end?: string; // End date
 
     orderBy?: 'publishedAt'
 

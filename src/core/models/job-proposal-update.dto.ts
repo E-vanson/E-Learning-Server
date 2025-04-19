@@ -15,6 +15,10 @@ export class UpdateJobProposalDto{
 
   @ApiProperty({ required: false })
   @IsOptional()
+  file_attachment?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   estimated_time?: string;
     
   @IsDateString()

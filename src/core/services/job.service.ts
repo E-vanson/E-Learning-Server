@@ -20,7 +20,7 @@ export interface JobService {
 
     isJobOwner(userId: string, jobId: string): Promise<boolean>;
     
-    delete(id: string): Promise<void>;
+    delete(id: string): Promise<boolean>;
 
     findByEmployerIdAndQuery(employerId: string, query: JobListingQueryDto): Promise<PageDto<JobListingDto>>
 }

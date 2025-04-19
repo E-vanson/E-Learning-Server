@@ -23,6 +23,8 @@ export interface ProposalService {
     reviewProposal(userId: string, proposalId: string, values: JobProposalReviewDto): Promise<void>;
 
     isProposalJobOwner(userId: string, proposalId: string): Promise<boolean>;
+
+    findProposalsByEmployerId(employerId: string, query: JobProposalQueryDto):  Promise<PageDto<JobProposalDto>>
 }
 
 export const JOB_PROPOSAL_SERVICE = 'ProposalService';

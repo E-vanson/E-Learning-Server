@@ -70,6 +70,8 @@ export class TypeormJobProposalService implements ProposalService{
             relations: ['job', 'freelancer']
         });
 
+        console.log("The proposal created: ", fullProposal);
+
         if (!fullProposal) {
             throw new NotFoundException('Proposal not found after creation');
         }
@@ -335,6 +337,125 @@ export class TypeormJobProposalService implements ProposalService{
 
         return true;
     }
+
+    async findProposalsByEmployerId(employerId: string, query: JobProposalQueryDto = new JobProposalQueryDto()): Promise<PageDto<JobProposalDto>> {
+    const { limit, offset } = QueryDto.getPageable(query);
+    
+    // First, get all job IDs for this employer
+    const employerJobsQuery = this.jobRepo.createQueryBuilder('job')
+        .select('job.id')
+        .where('job.employerId = :employerId', { employerId });
+    
+    // Data query with relations
+    const dataQuery = this.proposalRepo.createQueryBuilder('proposal')
+        .leftJoinAndSelect('proposal.job', 'job')
+        .leftJoinAndSelect('proposal.freelancer', 'freelancer')
+        .where(`proposal.job_id IN (${employerJobsQuery.getQuery()})`)
+        .setParameter('employerId', employerId);
+
+    // Count query (no relations needed)
+    const countQuery = this.proposalRepo.createQueryBuilder('proposal')
+        .where(`proposal.job_id IN (${employerJobsQuery.getQuery()})`)
+        .setParameter('employerId', employerId);
+
+    // ID query for pagination
+    const idQuery = this.proposalRepo.createQueryBuilder('proposal')
+        .where(`proposal.job_id IN (${employerJobsQuery.getQuery()})`)
+        .setParameter('employerId', employerId);
+
+    // Apply filters to all queries
+    [dataQuery, countQuery, idQuery].forEach(qb => {
+        if (query.q) {
+            qb.andWhere(
+                '(LOWER(proposal.cover_letter) LIKE LOWER(:search) OR ' +
+                'LOWER(job.title) LIKE LOWER(:search) OR ' +
+                'LOWER(freelancer.headline) LIKE LOWER(:search))',
+                { search: `%${query.q}%` }
+            );
+        }
+
+        if (query.jobId) {
+            qb.andWhere('proposal.job_id = :jobId', { jobId: query.jobId });
+        }
+
+        if (query.freelancerId) {
+            qb.andWhere('proposal.freelancer_id = :freelancerId', { 
+                freelancerId: query.freelancerId 
+            });
+        }
+
+        if (query.cover_letter) {
+            qb.andWhere('LOWER(proposal.cover_letter) LIKE LOWER(:coverLetter)', {
+                coverLetter: `%${query.cover_letter}%`
+            });
+        }
+
+        if (query.bid_amount) {
+            qb.andWhere('proposal.bid_amount = :bidAmount', { 
+                bidAmount: Number(query.bid_amount) 
+            });
+        }
+
+        if (query.estimated_time) {
+            qb.andWhere('LOWER(proposal.estimated_time) LIKE LOWER(:estimatedTime)', {
+                estimatedTime: `%${query.estimated_time}%`
+            });
+        }
+
+        if (query.status) {
+            qb.andWhere('proposal.status = :status', { 
+                status: query.status
+            });
+        }
+
+        // Add date filtering if needed
+        if (query.start) {
+            qb.andWhere('proposal.created_at >= :startDate', { 
+                startDate: new Date(query.start) 
+            });
+        }
+
+        if (query.end) {
+            // Add one day to include the entire end date
+            const endDate = new Date(query.end);
+            endDate.setDate(endDate.getDate() + 1);
+            qb.andWhere('proposal.created_at < :endDate', { endDate });
+        }
+    });
+
+    const orderByColumn = query.orderBy === 'publishedAt' 
+        ? 'proposal.published_at'  // Database column name
+        : 'proposal.created_at';   // Database column name
+
+    // Configure ID query
+    idQuery
+        .select(['proposal.id'])
+        .orderBy(orderByColumn, 'DESC')
+        .skip(offset)
+        .take(limit);
+
+    // Execute queries
+    const [totalCount, idList] = await Promise.all([
+        countQuery.getCount(),
+        idQuery.getMany()
+    ]);
+
+    // Get full entities
+    let list: JobProposalEntity[] = [];
+    if (idList.length > 0) {
+        list = await dataQuery
+            .andWhereInIds(idList.map(proposal => proposal.id))
+            .orderBy(orderByColumn, 'DESC')
+            .getMany();
+    }
+
+    return PageDto.from({
+        list: list.map(proposal => proposal.toDto()),
+        count: totalCount,
+        offset,
+        limit
+    });
+}
 
     // async getProposalsByEmployer(
     //     employerId: string,

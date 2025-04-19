@@ -4,11 +4,9 @@ import { AuditingDto } from "./auditing.dto";
 import { JobListingDto } from "./job-listing.dto";
 
 export enum ProposalStatus {
-  SUBMITTED = 'submitted',
-  REVIEWED = 'reviewed',
+  PENDING = 'pending',  
   ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
-  SHORTLISTED = 'shortlisted',
+  REJECTED = 'rejected',  
 }
 export class JobProposalDto{    
     id?: string;
@@ -21,6 +19,7 @@ export class JobProposalDto{
     freelancer: FreelancerProfileDto;
     freelancerId: string;
     cover_letter: string;
+    file_attachment?: string | null;
     bid_amount: number;
     estimated_time: string;
     status: ProposalStatus;

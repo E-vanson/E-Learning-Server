@@ -16,6 +16,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 
 
+
 export class TypeormFreelancerService implements FreelancerService{
     constructor(
         private dataSource: DataSource,

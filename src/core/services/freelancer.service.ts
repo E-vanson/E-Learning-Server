@@ -3,6 +3,7 @@ import { FreelancerProfileDto } from "../models/freelancer-profile.dto";
 import { UpdateFreelancerProfileDto } from "../models/freelancer-profile-update.dto";
 import { FreelancerProfileQueryDto } from "../models/freelancer-profile-query.dto";
 import { PageDto, UserDto } from "../models";
+import { FreelancerDashboardSummaryDto } from "../models/freelancer-dashboard-summary.dto";
 
 export interface FreelancerService{
     create(userId: string, values: CreateFreelancerProfileDto): Promise<FreelancerProfileDto>;
@@ -18,6 +19,8 @@ export interface FreelancerService{
     find(query: FreelancerProfileQueryDto): Promise<PageDto<FreelancerProfileDto>>;        
 
     delete(id: string): Promise<boolean>
+
+    getDashboardSummary(userId: string): Promise<FreelancerDashboardSummaryDto | undefined>
 }
 
 export const FREELANCER_PROFILE_SERVICE = 'FreelancerProfileService';

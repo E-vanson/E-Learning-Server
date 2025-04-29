@@ -24,7 +24,11 @@ export interface ProposalService {
 
     isProposalJobOwner(userId: string, proposalId: string): Promise<boolean>;
 
-    findProposalsByEmployerId(employerId: string, query: JobProposalQueryDto):  Promise<PageDto<JobProposalDto>>
+    findProposalsByEmployerId(employerId: string, query: JobProposalQueryDto): Promise<PageDto<JobProposalDto>>
+    
+    findProposalByFreelancerId(freelancerId: string): Promise<JobProposalDto[] | undefined>
+    
+    findByFreelancerIdAndQuery(freelancerId: string, query: JobProposalQueryDto): Promise<PageDto<JobProposalDto>>
 }
 
 export const JOB_PROPOSAL_SERVICE = 'ProposalService';

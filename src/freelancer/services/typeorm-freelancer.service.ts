@@ -14,6 +14,10 @@ import { Inject, NotFoundException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
+import { FreelancerDashboardSummaryDto } from "@/core/models/freelancer-dashboard-summary.dto";
+import { JOB_PROPOSAL_SERVICE, ProposalService } from "@/core/services/job-proposal.service";
+import { JobProposalEntity } from "@/core/entities/job-proposal-entity";
+import { ProposalStatus } from "@/core/models/job-proposal.dto";
 
 
 
@@ -25,10 +29,14 @@ export class TypeormFreelancerService implements FreelancerService{
         private freelancerRepo: Repository<FreelancerProfileEntity>,
         @InjectRepository(UserEntity)
         private userRepo: Repository<UserEntity>,
+        @InjectRepository(JobProposalEntity)
+        private proposalRepo: Repository<JobProposalEntity>,
         @Inject(USER_SERVICE)
         private userService: UserService,
         @Inject(EMPLOYER_PROFILE_SERVICE)
-        private employerService: EmployerProfileService
+        private employerService: EmployerProfileService,
+        @Inject(JOB_PROPOSAL_SERVICE)
+        private proposalService: ProposalService
     ) { }
     
     async create(userId: string, values: CreateFreelancerProfileDto): Promise<FreelancerProfileDto> {        
@@ -243,5 +251,51 @@ export class TypeormFreelancerService implements FreelancerService{
         ...profile.toDto(),
         ...user.toDto()    
         }; 
+    }
+
+    async getDashboardSummary(userId: string): Promise<FreelancerDashboardSummaryDto | undefined> {
+        const freelancer = await this.findByUserId(userId);
+        if (!freelancer) throw new DomainError("Can not get dashboard summary");
+        const freelancerId = freelancer.id;
+
+        const freelancerProposals = await this.proposalService.findProposalByFreelancerId(freelancerId);
+        if (!freelancerProposals) throw new DomainError("No Proposals Found");
+
+        const proposalId = freelancerProposals.map(proposal => proposal.id);
+        let applicationCount = 0;
+        let reviewCount = 0;
+        let contractCount = 0;
+
+        if (proposalId.length > 0) {
+            const proposalCounts = await this.proposalRepo.createQueryBuilder('proposal')
+             .select('proposal.status', 'status')
+            .addSelect('COUNT(proposal.id)', 'count')
+            .where('proposal.freelancer_id IN (:...proposalId)', { proposalId })
+            .groupBy('proposal.status')
+            .getRawMany();
+
+            proposalCounts.forEach(item => {
+            const count = parseInt(item.count);
+            applicationCount += count; // Total applications
+            
+            // Count reviewed proposals
+            if (item.status === ProposalStatus.ACCEPTED || 
+                item.status === ProposalStatus.REJECTED) {
+                reviewCount += count;
+            }
+            
+            // Count contract proposals (accepted proposals)
+            if (item.status === ProposalStatus.ACCEPTED) {
+                contractCount += count;
+            }
+            });
+        }
+        return {
+            proposals: freelancerProposals,
+            proposalCount: freelancerProposals.length,
+            proposalReviewCount: reviewCount,
+            contractCount: contractCount
+        }
+
     }
 }

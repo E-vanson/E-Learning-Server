@@ -455,6 +455,115 @@ export class TypeormJobProposalService implements ProposalService{
         offset,
         limit
     });
+    }
+    
+    async findProposalByFreelancerId(freelancerId: string): Promise<JobProposalDto[] | undefined> {
+        const entities = await this.proposalRepo.find({ where: { freelancer_id: freelancerId } })
+        if (!entities) throw new DomainError("No Proposals Found");
+
+        return entities.map(entity => entity.toDto());
+    }
+
+    async findByFreelancerIdAndQuery(freelancerId: string,query: JobProposalQueryDto = new JobProposalQueryDto()): Promise<PageDto<JobProposalDto>> {
+        const { limit, offset } = QueryDto.getPageable(query);
+        
+        // Data query with relations
+        const dataQuery = this.proposalRepo.createQueryBuilder('proposal')
+            .leftJoinAndSelect('proposal.job', 'job')
+            .where('proposal.freelancerId = :freelancerId', { freelancerId });
+
+        // Count query (no relations needed by default)
+        const countQuery = this.proposalRepo.createQueryBuilder('proposal')
+            .where('proposal.freelancerId = :freelancerId', { freelancerId });
+
+        // ID query for pagination
+        const idQuery = this.proposalRepo.createQueryBuilder('proposal')
+            .where('proposal.freelancerId = :freelancerId', { freelancerId });
+
+        // Apply filters to all queries
+        [dataQuery, countQuery, idQuery].forEach(qb => {
+            if (query.q) {
+                qb.leftJoin('proposal.job', 'job');
+                qb.andWhere(
+                    '(LOWER(proposal.cover_letter) LIKE LOWER(:search) OR ' +
+                    'LOWER(job.title) LIKE LOWER(:search))',
+                    { search: `%${query.q}%` }
+                );
+            }
+
+            if (query.jobId) {
+                qb.andWhere('proposal.jobId = :jobId', { jobId: query.jobId });
+            }
+
+            if (query.cover_letter) {
+                qb.andWhere('LOWER(proposal.cover_letter) LIKE LOWER(:coverLetter)', {
+                    coverLetter: `%${query.cover_letter}%`
+                });
+            }
+
+            if (query.bid_amount) {
+                qb.andWhere('proposal.bid_amount = :bidAmount', {
+                    bidAmount: query.bid_amount
+                });
+            }
+
+            if (query.estimated_time) {
+                qb.andWhere('LOWER(proposal.estimated_time) LIKE LOWER(:estimatedTime)', {
+                    estimatedTime: `%${query.estimated_time}%`
+                });
+            }
+
+            if (query.status) {
+                qb.andWhere('proposal.status = :status', {
+                    status: query.status
+                });
+            }
+
+            if (query.start) {
+                qb.andWhere('proposal.created_at >= :startDate', { 
+                    startDate: new Date(query.start) 
+                });
+            }
+
+            if (query.end) {
+                const endDate = new Date(query.end);
+                endDate.setDate(endDate.getDate() + 1);
+                qb.andWhere('proposal.created_at < :endDate', { endDate });
+            }
+        });
+
+        const orderByColumn = query.orderBy === 'publishedAt' 
+            ? 'proposal.published_at'  // Database column name
+            : 'proposal.created_at';    // Database column name
+
+        // Configure ID query
+        idQuery
+            .select(['proposal.id'])
+            .orderBy(orderByColumn, 'DESC')
+            .skip(offset)
+            .take(limit);
+
+        // Execute queries
+        const [totalCount, idList] = await Promise.all([
+            countQuery.getCount(),
+            idQuery.getMany()
+        ]);
+
+        // Get full entities
+        let list: JobProposalEntity[] = [];
+        if (idList.length > 0) {
+            list = await dataQuery
+                .andWhereInIds(idList.map(proposal => proposal.id))
+                .orderBy(orderByColumn, 'DESC')
+                .getMany();
+        }
+
+        return PageDto.from({
+            list: list.map(proposal => proposal.toDto()),
+            count: totalCount,
+            offset,
+            limit
+        });
 }
 
     // async getProposalsByEmployer(
@@ -494,5 +603,7 @@ export class TypeormJobProposalService implements ProposalService{
     //     proposals,
     //     };
     // }
+
+
     
 }

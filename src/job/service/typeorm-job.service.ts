@@ -410,5 +410,6 @@ export class TypeormJobService implements JobService{
         offset,
         limit
     });
-}
+   }
+    
 }

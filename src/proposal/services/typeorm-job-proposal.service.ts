@@ -11,7 +11,7 @@ import { CreateJobProposalDto } from "@/core/models/job-proposal-create.dto";
 import { JobProposalQueryDto } from "@/core/models/job-proposal-query.dto";
 import { JobProposalReviewDto } from "@/core/models/job-proposal-review.dto";
 import { UpdateJobProposalDto } from "@/core/models/job-proposal-update.dto";
-import { JobProposalDto } from "@/core/models/job-proposal.dto";
+import { JobProposalDto, ProposalStatus } from "@/core/models/job-proposal.dto";
 import { ProposalService } from "@/core/services/job-proposal.service";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
@@ -564,7 +564,40 @@ export class TypeormJobProposalService implements ProposalService{
             offset,
             limit
         });
-}
+    }
+    
+    async updateProposalStatus(proposalId: string, value: ProposalStatus): Promise<boolean> {
+        const entity = await this.proposalRepo.findOne({ where: { id: proposalId } });
+
+        if (!entity) {
+            throw new DomainError("Proposal Not Found!!");
+        }                
+
+        // const dbUpdatedAt = new Date(entity.updatedAt).getTime();
+        // const userUpdatedAt = new Date(values.updatedAt).getTime();        
+
+        await this.dataSource.transaction(async (em) => {
+            await em.update(JobProposalEntity, proposalId, {                
+                status: value
+            })
+        })
+
+        if (entity.status !== value) return false;
+
+        this.eventEmitter.emit(
+            'audit.updated',
+            new AuditEvent({
+                resourceId: `${proposalId}`,
+                resourceType: 'proposal-status',
+                context: JSON.stringify({ 
+                    status: value
+                }),
+            }),
+        );        
+
+        return true;
+
+    }
 
     // async getProposalsByEmployer(
     //     employerId: string,

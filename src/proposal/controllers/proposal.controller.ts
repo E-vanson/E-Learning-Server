@@ -6,7 +6,7 @@ import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, Query, 
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ProposalOwnerGuard } from "../guards/proposal-owner.guard";
 import { ApiOkResponsePaginated } from "@/common/decorators";
-import { JobProposalDto } from "@/core/models/job-proposal.dto";
+import { JobProposalDto, ProposalStatus } from "@/core/models/job-proposal.dto";
 import { JobProposalQueryDto } from "@/core/models/job-proposal-query.dto";
 import { ProposalQueryTransformPipe } from "../pipes/proposal-query.pipe";
 import { JobProposalReviewDto } from "@/core/models/job-proposal-review.dto";
@@ -76,12 +76,23 @@ export class ProposalController{
         await this.proposalSerive.delete(id);
     }
 
-    @Patch(':id')    
+    @UseGuards(ProposalOwnerGuard)
+    @Patch('/status/:id')
+    async updateProposalStatus(
+        @Param('id') id: string,
+        @Body() value:ProposalStatus
+    ) {
+        await this.proposalSerive.updateProposalStatus(id, value)
+    }
+    
+
+    @Patch('/review/:id')    
     @UseGuards(ProposalJobOwnerGuard)    
     async reviewProposal(
         @Param('id') proposalId: string,
         @Body() values: JobProposalReviewDto,
     ) {
+        console.log("inside the controller");
         const user =  this.security.getAuthenticatedUser();
         await this.proposalSerive.reviewProposal(user.id, proposalId, values)
     }

@@ -79,7 +79,7 @@ export class TypeormContractService implements ContractService{
         
     }
 
-    async update(userId: string, contractId: string, values: UpdateContractDto): Promise<void> {
+    async update(userId: string, contractId: string, values: UpdateContractDto): Promise<boolean> {
         if (!(await this.userRepo.existsBy({ id: userId }))) {
         throw new DomainError('User not found');
         }
@@ -123,9 +123,10 @@ export class TypeormContractService implements ContractService{
                 }),
             }),
         );
+        return true
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id: string): Promise<boolean> {
         const entity = await this.contractRepo.findOneBy({ id: id });
             if (!entity) throw new DomainError("Contract Not Found");
 
@@ -141,14 +142,16 @@ export class TypeormContractService implements ContractService{
                     context: JSON.stringify({terms: entity.terms})
                 })
             )
+        return true;        
     }
 
     async findById(id: string): Promise<ContractDto | undefined> {
         const entity = await this.contractRepo.findOne({
             where: { id },
             relations: ['job', 'freelancer', 'employer'], // Include the job relation
-            select: ['id', 'job', 'freelancer', 'employer', 'startDate', 'endDate', 'terms', 'status', /* other fields */]
+            select: ['id', 'job', 'freelancer', 'employer', 'startDate', 'endDate', 'terms', 'status','milestones', 'payment_amount', 'payment_currency'/* other fields */]
         });        
+        console.log("The contrat rsults: ", entity) 
         
         return entity?.toDto(); 
     }
@@ -223,7 +226,7 @@ export class TypeormContractService implements ContractService{
     queryBuilder.skip(offset).take(limit);
 
     // Execute query
-    const results = await queryBuilder.getMany();
+    const results = await queryBuilder.getMany();       
 
     return PageDto.from({
         list: results.map(contract => contract.toDto()),

@@ -6,10 +6,10 @@ import { FreelancerProfileDto } from './freelancer-profile.dto';
 import { AuditingDto } from './auditing.dto';
 
 export enum ContractStatus {
-  DRAFT = 'DRAFT',
-  ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
-  TERMINATED = 'TERMINATED'
+  draft = 'draft',
+  active = 'active',
+  completed = 'completed',
+  terminated = 'terminated'
 }
 
 export interface ContractTerms {

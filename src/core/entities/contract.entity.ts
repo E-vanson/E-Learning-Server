@@ -31,7 +31,7 @@ export class JobContractEntity extends AuditingEntity {
   @Column({
     type: 'enum',
     enum: ContractStatus,
-    default: ContractStatus.DRAFT
+    default: ContractStatus.draft
   })
   status: ContractStatus;
 

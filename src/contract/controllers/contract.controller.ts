@@ -46,6 +46,7 @@ export class ContractController{
         @Param('id') contractId: string,
         @Body() values:UpdateContractDto,
     ) {
+        console.log("The values for updating: ", values)
         const user = this.security.getAuthenticatedUser();        
         return await this.contractService.update(user.id, contractId ,values)
     }
@@ -73,6 +74,7 @@ export class ContractController{
     await this.contractService.delete(id);
     }
 
+    // @UseGuards(ContractOwnerGuard)
     @ApiOkResponsePaginated(ContractDto)
     @Get()
     async find(@Query(ContractQueryTransformPipe) query: ContractQueryDto) {

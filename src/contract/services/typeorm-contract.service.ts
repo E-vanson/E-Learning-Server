@@ -42,7 +42,7 @@ export class TypeormContractService implements ContractService{
         private jobService: JobService,
     ) { }
     
-    async create(userId: string, values: CreateContractDto): Promise<ContractDto> {
+    async create(userId: string, values: CreateContractDto): Promise<boolean> {
         const [job, freelancer] = await Promise.all([
         this.jobService.findById(values.jobId),
         this.freenlancerService.findById(values.freelancerId)        
@@ -71,9 +71,12 @@ export class TypeormContractService implements ContractService{
         if (!contractId) throw new DomainError("Contract Id not found")
         
         const contract = await this.contractRepo.findOneByOrFail({ id: contractId });
+        if(contract){
+            return true;
+        }
 
-        return contract.toDto()
-
+         return false;
+        
     }
 
     async update(userId: string, contractId: string, values: UpdateContractDto): Promise<void> {

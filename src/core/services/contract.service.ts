@@ -7,7 +7,7 @@ import { ContractDto } from "../models/contract.dto";
 
 
 export interface ContractService {
-    create(userId: string, values: CreateContractDto): Promise<ContractDto>;
+    create(userId: string, values: CreateContractDto): Promise<boolean>;
 
     update(userId: string, contractId: string, values: UpdateContractDto): Promise<void>;
 

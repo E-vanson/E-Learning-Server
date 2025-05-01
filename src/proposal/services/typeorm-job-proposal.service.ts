@@ -280,9 +280,7 @@ export class TypeormJobProposalService implements ProposalService{
 
         if (job?.employerId !== employer.id) {
             throw new DomainError("You can not review this proposal!! You're not the onwer of the job")
-        }
-
-        values.reviewedAt = Date.now().toString();
+        }        
 
         await this.dataSource.transaction(async (em) => {        
             await em.update(JobProposalEntity, proposalId, {

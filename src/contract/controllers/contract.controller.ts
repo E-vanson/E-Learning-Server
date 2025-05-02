@@ -44,7 +44,7 @@ export class ContractController{
     @Put(':id')
     async updateContract(
         @Param('id') contractId: string,
-        @Body() values:UpdateContractDto,
+        @Body() values:UpdateContractDto, 
     ) {
         console.log("The values for updating: ", values)
         const user = this.security.getAuthenticatedUser();        
@@ -69,8 +69,9 @@ export class ContractController{
 
 
     @UseGuards(ContractOwnerGuard)
-    @Delete(':id')
+    @Delete('/employer/:id')
     async delete(@Param('id') id: string) {
+    console.log("This is the req handler: ")    
     await this.contractService.delete(id);
     }
 

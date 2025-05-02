@@ -135,7 +135,7 @@ export class TypeormContractService implements ContractService{
             });
 
             this.eventEmitter.emit(
-                'job-contract.deleted',
+                'job-contract.deleted', 
                 new AuditEvent({
                     resourceId: `${id}`,
                     resourceType: 'job-contract',
@@ -148,12 +148,11 @@ export class TypeormContractService implements ContractService{
     async findById(id: string): Promise<ContractDto | undefined> {
         const entity = await this.contractRepo.findOne({
             where: { id },
-            relations: ['job', 'freelancer', 'employer'], // Include the job relation
-            select: ['id', 'job', 'freelancer', 'employer', 'startDate', 'endDate', 'terms', 'status','milestones', 'payment_amount', 'payment_currency'/* other fields */]
+            relations: ['job', 'freelancer', 'employer'],
         });        
         console.log("The contrat rsults: ", entity) 
         
-        return entity?.toDto(); 
+        return entity?.toDto();  
     }
 
     async find(query: ContractQueryDto): Promise<PageDto<ContractDto>> {
@@ -239,11 +238,11 @@ export class TypeormContractService implements ContractService{
     
     async isContractOwner(userId: string, contractId: string): Promise<boolean>{
         const employer = await this.employerService.findByUserId(userId);
-
+        console.log("inside the contract service: ", employer, contractId);  
         if (!employer) throw new DomainError("Employer Profile Not Found");
 
         const contract = await this.findById(contractId);        
-
+        console.log("inside the contract service: ", contract);  
         if (contract?.employer.id === employer.id) {
             return true;
         }

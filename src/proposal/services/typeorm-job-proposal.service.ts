@@ -26,7 +26,7 @@ export class TypeormJobProposalService implements ProposalService{
     constructor(
         private dataSource: DataSource,
         private eventEmitter: EventEmitter2,
-        @InjectRepository(JobProposalEntity)
+        @InjectRepository(JobProposalEntity) 
         private proposalRepo: Repository<JobProposalEntity>,
         @InjectRepository(FreelancerProfileEntity)
         private freelancerRepo: Repository<FreelancerProfileEntity>,

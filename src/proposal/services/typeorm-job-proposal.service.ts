@@ -446,6 +446,7 @@ export class TypeormJobProposalService implements ProposalService{
             .orderBy(orderByColumn, 'DESC')
             .getMany();
     }
+      console.log("The proposals from the be: ", list);     
 
     return PageDto.from({
         list: list.map(proposal => proposal.toDto()),

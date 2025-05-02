@@ -62,7 +62,8 @@ export class JobContractEntity extends AuditingEntity {
             paymentAmount: this.payment_amount,
             paymentCurrency: this.payment_currency,
             milestones: this.milestones,
-            status: this.status
+            status: this.status,
+            audit: this.toAudit(),
         })
     }
 }

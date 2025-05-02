@@ -64,6 +64,14 @@ export class ProposalController{
         return await this.proposalSerive.findById(proposalId);
     }
 
+    @Get('/employer/:id')
+    @UseGuards(ProposalJobOwnerGuard)
+    async getProposalByEmployer(
+        @Param('id') proposalId: string
+    ) {
+        return await this.proposalSerive.findById(proposalId);
+    }
+
     @ApiOkResponsePaginated(JobProposalDto)
     @Get()
     async find(@Query(ProposalQueryTransformPipe) query: JobProposalQueryDto) {

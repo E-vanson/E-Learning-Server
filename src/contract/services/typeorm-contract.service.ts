@@ -228,6 +228,7 @@ export class TypeormContractService implements ContractService{
     // Execute query
     const results = await queryBuilder.getMany();       
 
+    console.log("The contracts from the be: ", results);   
     return PageDto.from({
         list: results.map(contract => contract.toDto()),
         count: totalCount,

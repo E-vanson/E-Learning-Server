@@ -18,6 +18,8 @@ import { UserEntity } from "@/core/entities/user.entity";
 import { AuditEvent } from "@/core/events";
 import { PageDto, QueryDto } from "@/core/models";
 import { ContractQueryDto } from "@/core/models/contract-query.dto";
+import { JOB_PROPOSAL_SERVICE, ProposalService } from "@/core/services/job-proposal.service";
+import { JobProposalEntity } from "@/core/entities/job-proposal-entity";
 
 
 export class TypeormContractService implements ContractService{
@@ -32,6 +34,8 @@ export class TypeormContractService implements ContractService{
         private freelancerRepo: Repository<FreelancerProfileEntity>,        
         @InjectRepository(JobContractEntity)
         private contractRepo: Repository<JobContractEntity>,
+        @InjectRepository(JobProposalEntity)
+        private proposalRepo: Repository<JobProposalEntity>,  
         @InjectRepository(UserEntity)
         private userRepo: Repository<UserEntity>,
         @Inject(FREELANCER_PROFILE_SERVICE)
@@ -40,12 +44,15 @@ export class TypeormContractService implements ContractService{
         private employerService: EmployerProfileService,
         @Inject(JOB_SERVICE)
         private jobService: JobService,
+        @Inject(JOB_PROPOSAL_SERVICE)
+        private proposalService: ProposalService
     ) { }
     
     async create(userId: string, values: CreateContractDto): Promise<boolean> {
-        const [job, freelancer] = await Promise.all([
+        const [job, freelancer, proposal] = await Promise.all([
         this.jobService.findById(values.jobId),
-        this.freenlancerService.findById(values.freelancerId)        
+        this.freenlancerService.findById(values.freelancerId),
+        this.proposalService.findById(values.proposalId)
         ]);
 
         const employer = await this.employerRepo.findOne({ where: { userId: userId } })        
@@ -58,6 +65,7 @@ export class TypeormContractService implements ContractService{
             job: job,
             freelancer: freelancer,
             employer: employer?.toDto(),
+            proposal: proposal,
             terms: values.terms,
             startDate: values.startDate,
             endDate: values.endDate,
@@ -248,5 +256,17 @@ export class TypeormContractService implements ContractService{
         }
 
         return false;
+    }    
+
+    async ifContractExistsForProposal(proposalId: string): Promise<ContractDto | undefined>{
+        const contract = await this.contractRepo.findOne({
+            where: {
+                proposal: { id: proposalId }
+            },
+            relations: ['proposal'] // Include the proposal relation if needed
+        });
+        
+        return contract?.toDto();
     }
+    
 }

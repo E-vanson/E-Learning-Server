@@ -18,6 +18,8 @@ export interface ContractService {
     delete(id: string): Promise<boolean>;
 
     isContractOwner(userId: string, contractId: string): Promise<boolean>;
+
+    ifContractExistsForProposal(proposaId: string): Promise<ContractDto | undefined>;
 }
 
 export const CONTRACT_SERVICE = 'ContractService';

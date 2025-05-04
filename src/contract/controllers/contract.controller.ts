@@ -82,7 +82,9 @@ export class ContractController{
         return await this.contractService.find(query);
     }
 
-
-
-
+    @Get('/proposal-exists/:id')
+    async findProposal(@Param('id') proposalId: string) {
+        const contract = await this.contractService.ifContractExistsForProposal(proposalId);
+        return { exists: !!contract, contract: contract };
+    }
 }

@@ -598,6 +598,8 @@ export class TypeormJobProposalService implements ProposalService{
 
     }
 
+    
+
     // async getProposalsByEmployer(
     //     employerId: string,
     //     page: number = 1,

@@ -4,6 +4,7 @@ import { EmployerProfileDto } from './employer-profie.dto';
 import { JobListingDto } from './job-listing.dto';
 import { FreelancerProfileDto } from './freelancer-profile.dto';
 import { AuditingDto } from './auditing.dto';
+import { JobProposalDto } from './job-proposal.dto';
 
 export enum ContractStatus {
   draft = 'draft',
@@ -43,6 +44,10 @@ export class ContractDto {
     @Expose()
     @Type(() => JobListingDto)
     job: JobListingDto; 
+  
+    @Expose()
+    @Type(() => JobProposalDto)
+    proposal: JobProposalDto; 
 
     @Expose()
     @Type(() => FreelancerProfileDto)
@@ -56,7 +61,9 @@ export class ContractDto {
             
     @IsUUID()
     employerId: string;  
-
+  
+    @IsUUID()
+    proposalId: string; 
 
     @Expose()
     @IsNotEmpty()

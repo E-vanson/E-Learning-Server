@@ -13,6 +13,8 @@ import { EmployerModule } from '@/employer/employer.module';
 import { FreelancerModule } from '@/freelancer/freelancer.module';
 import { UserModule } from '@/user/user.module';
 import { JobModule } from '@/job/job.module';
+import { JobProposalEntity } from '@/core/entities/job-proposal-entity';
+import { ProposalModule } from '@/proposal/proposal.module';
 
 @Module({
     imports: [
@@ -22,12 +24,13 @@ import { JobModule } from '@/job/job.module';
             UserEntity,
             JobListingEntity,
             FreelancerProfileEntity,
-            
+            JobProposalEntity
         ]),
         EmployerModule,
         FreelancerModule,
         UserModule,
-        JobModule
+        JobModule,
+        ProposalModule
     ],
     controllers: [ContractController],
     providers: [

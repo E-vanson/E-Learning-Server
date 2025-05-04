@@ -6,11 +6,13 @@ export class CreateContractDto {
   jobId: string;
 
   @IsUUID()
-  freelancerId: string;
-    
+  freelancerId: string;    
   
   @IsUUID()
   employerId: string;  
+
+  @IsUUID()
+  proposalId: string;
 
   @IsNotEmpty()
   terms: ContractTerms;

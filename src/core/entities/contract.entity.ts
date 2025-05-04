@@ -4,6 +4,7 @@ import { AuditingEntity } from './auditing.entity';
 import { FreelancerProfileEntity } from './freelancer-profile-entity';
 import { EmployerProfileEntity } from './employer-profile-entity';
 import { ContractDto, ContractStatus, ContractTerms, Currency, Milestone } from '../models/contract.dto';
+import { JobProposalEntity } from './job-proposal-entity';
 
 @Entity('job_contract')
 export class JobContractEntity extends AuditingEntity {
@@ -12,7 +13,11 @@ export class JobContractEntity extends AuditingEntity {
 
   @ManyToOne(() => JobListingEntity)
   @JoinColumn({ name: 'job_id' })
-  job: JobListingEntity;      
+  job: JobListingEntity;  
+  
+  @ManyToOne(() => JobProposalEntity)
+  @JoinColumn({ name: 'proposal_id' })
+  proposal: JobProposalEntity; 
 
   @ManyToOne(() => FreelancerProfileEntity)
   @JoinColumn({ name: 'freelancer_id' })

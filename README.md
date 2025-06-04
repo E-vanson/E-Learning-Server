@@ -91,11 +91,7 @@ $ npm run test:cov
 
 You can explore api docs via path `http://localhost:3080/api-docs`.
 
-## Support me
 
-<a href="https://www.buymeacoffee.com/yzox2vc1i">
-	<img src="images/bmc-button.png" width="200">
-</a>
 <br/>
 <br/>
 
